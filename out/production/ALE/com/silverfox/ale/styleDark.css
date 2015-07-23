@@ -1,0 +1,73 @@
+.loginPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.loginSystemBtn{
+    -fx-graphic: url("img/btn/smallSystemButton.png");
+    -fx-background-color: transparent;
+}
+
+.loginSystemBtn:hover{
+    -fx-graphic: url("img/btn/smallSystemButtonHover.png");
+    -fx-background-color: transparent;
+}
+
+.loginBtn{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
+
+.signupBtn{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
+
+
+.rootPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.topPanel{
+    -fx-background-color: #363636;
+}
+
+.leftPane{
+    -fx-background-color: #363636;
+}
+
+.homeBtn{
+    -fx-graphic: url("img/btn/homeButton.png");
+    -fx-background-color: transparent;
+}
+
+.homeBtn:hover{
+    -fx-graphic: url("img/btn/homeButtonHover.png");
+    -fx-background-color: transparent;
+}
+
+.coursesBtn{
+    -fx-graphic: url("img/btn/coursesButton.png");
+    -fx-background-color: transparent;
+}
+
+.coursesBtn:hover{
+    -fx-graphic: url("img/btn/coursesButtonHover.png");
+    -fx-background-color: transparent;
+}
+
+.systemBtn{
+    -fx-graphic: url("img/btn/systemButton.png");
+    -fx-background-color: transparent;
+}
+
+.systemBtn:hover{
+    -fx-graphic: url("img/btn/systemButtonHover.png");
+    -fx-background-color: transparent;
+    -fx-transition: all 5s ease-in-out;
+}
+
+
+.textField{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
