@@ -22,6 +22,10 @@
     -fx-text-fill: white;
 }
 
+.errorLbl{
+    -fx-text-fill: red;
+}
+
 
 .rootPane{
     -fx-background-color: #2a2a2a;
@@ -33,6 +37,10 @@
 
 .leftPane{
     -fx-background-color: #363636;
+}
+
+.centerPanel{
+    -fx-background-color: #2a2a2a;
 }
 
 .homeBtn{
@@ -55,6 +63,16 @@
     -fx-background-color: transparent;
 }
 
+.simsBtn{
+    -fx-graphic: url("img/btn/simulationsButton.png");
+    -fx-background-color: transparent;
+}
+
+.simsBtn:hover{
+    -fx-graphic: url("img/btn/simulationsButtonHover.png");
+    -fx-background-color: transparent;
+}
+
 .systemBtn{
     -fx-graphic: url("img/btn/systemButton.png");
     -fx-background-color: transparent;
@@ -70,4 +88,43 @@
 .textField{
     -fx-background-color: #363636;
     -fx-text-fill: white;
+}
+
+.chemistryBtn{
+    -fx-graphic: url("img/btn/Courses/ChemCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.physicsBtn{
+    -fx-graphic: url("img/btn/Courses/PhysCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.mathsBtn{
+    -fx-graphic: url("img/btn/Courses/MathCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.scrollPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.gridPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.lbl{
+        -fx-font-size: 40px;
+        -fx-font-family: "Courier New";
+        -fx-text-fill: white;
+}
+
+.balancingActBtn{
+    -fx-graphic: url("img/btn/sims/BalancingActSimButton.png");
+    -fx-background-color: transparent;
+}
+
+.balloonsAndStaticElectricityBtn{
+    -fx-graphic: url("img/btn/sims/BalloonsAndStaticElectricitySimButton.png");
+    -fx-background-color: transparent;
 }

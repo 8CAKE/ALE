@@ -1,20 +1,29 @@
 package com.silverfox.ale;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.TouchPoint;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -46,10 +55,18 @@ public class Main extends Application {
     VBox leftPanel;
     HBox topPanel;
 
+    ScrollPane homePanel;
+    ScrollPane coursesPanel;
+    ScrollPane simsPanel;
+
     BorderPane loginPane;
     VBox loginBox;
     HBox loginBtnBox;
     HBox loginTopPanel;
+
+    GridPane coursesGridPanel;
+    GridPane simsGridPanel;
+
     TextField usernameField;
     PasswordField passwordField;
     Button loginCloseBtn;
@@ -63,8 +80,23 @@ public class Main extends Application {
     //Buttons
     Button homeBtn;
     Button coursesBtn;
+    Button simsBtn;
     Button closeBtn;
     Button minimizeBtn;
+
+    //Course Btns
+    Button chemistryBtn;
+    Button physicsBtn;
+    Button mathsBtn;
+
+    //Simulation Btns
+    Button alphaDecayBtn;
+    Button balancingActBtn;
+    Button balloonsAndStaticElectricityBtn;
+
+    //Labels
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -109,14 +141,15 @@ public class Main extends Application {
         loginBtn.getStyleClass().add("loginBtn");
         loginBtn.setOnAction(e -> {
             if(connectToDB() == true){
-                if(login(usernameField.getText(), passwordField.getText()) == true){
+                if(validLogin(usernameField.getText(), passwordField.getText()) == true){
                     superUser = usernameField.getText();
-                    JOptionPane.showMessageDialog(null, "Login Successful");
-                    //Scene mainScene = new Scene(rootPane, width, height);
-                    //primaryStage.setScene(mainScene);
+
+                    Scene mainScene = new Scene(rootPane, width, height);
+                    primaryStage.setScene(mainScene);
                 }else {
                     errorLbl.setText("Incorrect username or password");
                     errorLbl.setVisible(true);
+                    passwordField.clear();
                 }
             }else{
                 errorLbl.setText("Could Not Connect To Database");
@@ -129,7 +162,6 @@ public class Main extends Application {
         signupBtn.getStyleClass().add("signupBtn");
 
         loginBtnBox = new HBox();
-
         loginBtnBox.getChildren().addAll(loginBtn, signupBtn, errorLbl);
 
 
@@ -149,9 +181,22 @@ public class Main extends Application {
 //----------------------------------------------------------------------------------------------------> Home Pane Start
         homeBtn = new Button("");
         homeBtn.getStyleClass().add("homeBtn");
+        homeBtn.setOnAction(e -> {
+            rootPane.setCenter(homePanel);
+        });
 
         coursesBtn = new Button("");
         coursesBtn.getStyleClass().add("coursesBtn");
+        coursesBtn.setOnAction(e -> {
+            rootPane.setCenter(coursesPanel);
+        });
+
+        simsBtn = new Button();
+        simsBtn.getStyleClass().add("simsBtn");
+        simsBtn.setOnAction(e -> {
+            rootPane.setCenter(simsPanel);
+            simsPanel.setContent(simsGridPanel);
+        });
 
         closeBtn = new Button("");
         closeBtn.getStyleClass().add("systemBtn");
@@ -168,7 +213,7 @@ public class Main extends Application {
         leftPanel = new VBox(0);
         leftPanel.setPrefWidth(1);
         leftPanel.getStyleClass().add("leftPane");
-        leftPanel.getChildren().addAll(homeBtn, coursesBtn);
+        leftPanel.getChildren().addAll(homeBtn, coursesBtn, simsBtn);
 
         topPanel = new HBox(1);
         topPanel.getStyleClass().add("topPanel");
@@ -176,20 +221,118 @@ public class Main extends Application {
         topPanel.setPadding(new Insets(0,0,0,0));
         topPanel.getChildren().addAll(minimizeBtn, closeBtn);
 
+
+        homePanel = new ScrollPane();
+        homePanel.getStyleClass().add("centerPanel");
+        homePanel.setPrefWidth(600);
+        homePanel.setPrefHeight(1000);
+       // homePanel.setContent();
+
+
+
+
+//------------------------------------------------------------------------------------------------------> Home Pane End
+
+//-------------------------------------------------------------------------------------------------> Courses Pane Start
+
+        chemistryBtn = new Button();
+        chemistryBtn.getStyleClass().add("chemistryBtn");
+
+        physicsBtn = new Button();
+        physicsBtn.getStyleClass().add("physicsBtn");
+
+        mathsBtn = new Button();
+        mathsBtn.getStyleClass().add("mathsBtn");
+
+        coursesGridPanel = new GridPane();
+        coursesGridPanel.getStyleClass().add("gridPane");
+        coursesGridPanel.setVgap(5);
+        coursesGridPanel.setHgap(5);
+        coursesGridPanel.setGridLinesVisible(false);
+        coursesGridPanel.setPrefWidth(1482);
+        coursesGridPanel.setPrefHeight(860);
+
+
+        coursesGridPanel.setRowIndex(chemistryBtn, 1);
+        coursesGridPanel.setColumnIndex(chemistryBtn, 1);
+        coursesGridPanel.setRowIndex(physicsBtn, 1);
+        coursesGridPanel.setColumnIndex(physicsBtn, 2);
+        coursesGridPanel.setRowIndex(mathsBtn, 1);
+        coursesGridPanel.setColumnIndex(mathsBtn, 3);
+        coursesGridPanel.getChildren().addAll(chemistryBtn, physicsBtn, mathsBtn);
+
+
+        coursesPanel = new ScrollPane();
+        coursesPanel.getStyleClass().add("scrollPane");
+        coursesPanel.setPrefWidth(1482);
+        coursesPanel.setPrefHeight(860);
+        coursesPanel.setContent(coursesGridPanel);
+
+//---------------------------------------------------------------------------------------------------> Courses Pane End
+
+//---------------------------------------------------------------------------------------------> Simulations Pane Start
+        final WebView browser = new WebView();
+        final WebEngine webEngine = browser.getEngine();
+        browser.setPrefHeight(860);
+        browser.setPrefWidth(1482);
+
+        Label physLbl = new Label("Physics");
+        physLbl.getStyleClass().add("lbl");
+
+
+
+        balancingActBtn = new Button();
+        balancingActBtn.getStyleClass().add("balancingActBtn");
+        balancingActBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/balancing-act/latest/balancing-act_en.html");
+            simsPanel.setContent(browser);
+        });
+
+        balloonsAndStaticElectricityBtn = new Button();
+        balloonsAndStaticElectricityBtn.getStyleClass().add("balloonsAndStaticElectricityBtn");
+        balloonsAndStaticElectricityBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/balloons-and-static-electricity/latest/" +
+                    "balloons-and-static-electricity_en.html");
+            simsPanel.setContent(browser);
+        });
+
+
+
+        simsGridPanel = new GridPane();
+        simsGridPanel.getStyleClass().add("gridPane");
+        simsGridPanel.setVgap(5);
+        simsGridPanel.setHgap(5);
+        simsGridPanel.setGridLinesVisible(false);
+        simsGridPanel.setPrefWidth(1482);
+        simsGridPanel.setPrefHeight(860);
+
+        simsGridPanel.setRowIndex(physLbl, 0);
+        simsGridPanel.setColumnIndex(physLbl, 0);
+        simsGridPanel.setRowIndex(balancingActBtn, 1);
+        simsGridPanel.setColumnIndex(balancingActBtn, 0);
+        simsGridPanel.setRowIndex(balloonsAndStaticElectricityBtn, 1);
+        simsGridPanel.setColumnIndex(balloonsAndStaticElectricityBtn, 1);
+        simsGridPanel.getChildren().addAll(physLbl, balancingActBtn, balloonsAndStaticElectricityBtn);
+
+        simsPanel = new ScrollPane();
+        simsPanel.getStyleClass().add("scrollPane");
+        simsPanel.setContent(simsGridPanel);
+
+//-----------------------------------------------------------------------------------------------> Simulations Pane End
+
         rootPane = new BorderPane();
         rootPane.setLeft(leftPanel);
-        rootPane.setPrefWidth(1);
         rootPane.setTop(topPanel);
+        rootPane.setCenter(homePanel);
         rootPane.getStyleClass().add("rootPane");
         rootPane.getStylesheets().add(Main.class.getResource("styleDark.css").toExternalForm());
-//------------------------------------------------------------------------------------------------------> Home Pane End
 
 
         primaryStage.setTitle("ALE");
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.getIcons().add(new javafx.scene.image.Image(Main.class
                 .getResourceAsStream("img/btn/aleIcon.png")));
-        primaryStage.setScene(new Scene(loginPane, 200, 100));
+        primaryStage.setScene(new Scene(rootPane, width, height));
         primaryStage.show();
     }
 
@@ -208,7 +351,7 @@ public class Main extends Application {
     public boolean connectToDB(){
         boolean estCon = false;
         try{
-            dbCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/sample", "Root", "oqu#$XQgHFzDj@1MGg1G8");
+            dbCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
             estCon = true;
         }catch(Exception e){
             e.printStackTrace();
@@ -217,30 +360,27 @@ public class Main extends Application {
         return estCon;
     }
 
-    public boolean login(String useraname, String password){
+    public boolean validLogin(String username, String password){
         boolean validUser = false;
         try {
-            try {
-                dbStm = dbCon.prepareStatement("SELECT * FROM userInfo");
-                dbRs = dbStm.executeQuery();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
-            do {
-                String un = "";
-                String pw = "";
-                try {
+            dbStm = dbCon.prepareStatement("SELECT * FROM userInfo");
+            dbRs = dbStm.executeQuery();
+
+                while (dbRs.next()){
+                    String un = "";
+                    String pw = "";
+
                     un = dbRs.getString("username");
+                    System.out.println(un + " " + username);
                     pw = dbRs.getString("password");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if((useraname == un) && (password == pw)){
-                    validUser = true;
-                }
+                    System.out.println(pw + " " + password);
 
-            } while (dbRs.next() && (validUser = false));
+                    if(((username.equals(un) == true) && ((password.equals(pw) == true)))){
+                        validUser = true;
+                        System.out.println("Valid User");
+                }
+            }
 
         }catch (Exception e){
             e.printStackTrace();
@@ -248,5 +388,6 @@ public class Main extends Application {
 
         return validUser;
     }
+
 
 }
