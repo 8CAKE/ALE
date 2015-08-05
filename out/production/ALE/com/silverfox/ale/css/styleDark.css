@@ -1,0 +1,228 @@
+
+/* Login Start */
+.loginPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.loginSystemBtn{
+    -fx-graphic: url("../img/btn/smallSystemButton.png");
+    -fx-background-color: transparent;
+}
+
+.loginSystemBtn:hover{
+    -fx-graphic: url("../img/btn/smallSystemButtonHover.png");
+    -fx-background-color: transparent;
+}
+
+.loginBtn{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
+
+.signupBtn{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
+
+.errorLbl{
+    -fx-text-fill: red;
+}
+/* Login End */
+
+
+
+.rootPane{
+    -fx-background-color: #2a2a2a;
+}
+
+/* Top Panel Start */
+.topPanel{
+    -fx-background-color: #363636;
+}
+
+.systemBtn{
+    -fx-graphic: url("../img/btn/systemButton.png");
+    -fx-background-color: transparent;
+}
+
+.systemBtn:hover{
+    -fx-graphic: url("../img/btn/systemButtonHover.png");
+    -fx-background-color: transparent;
+    -fx-transition: all 5s ease-in-out;
+}
+/* Top Panel End */
+
+
+
+.leftPane{
+    -fx-background-color: #363636;
+}
+
+.centerPanel{
+    -fx-background-color: #2a2a2a;
+}
+
+.homeBtn{
+    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.homeBtn:hover{
+    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.homeBtnSelected{
+    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.coursesBtn{
+    -fx-graphic: url("../img/btn/CoursesButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.coursesBtn:hover{
+    -fx-graphic: url("../img/btn/CoursesButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.simsBtn{
+    -fx-graphic: url("../img/btn/SimsButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.simsBtn:hover{
+    -fx-graphic: url("../img/btn/SimsButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.profileBtn{
+    -fx-graphic: url("../img/btn/ProfileButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.profileBtn:hover{
+    -fx-graphic: url("../img/btn/ProfileButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.textEditorBtn{
+    -fx-graphic: url("../img/btn/TextEditorButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.wolframBtn{
+    -fx-graphic: url("../img/btn/WolframAlphaButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+.wolframBtn:hover{
+    -fx-graphic: url("../img/btn/WolframAlphaButtonV2.png");
+    -fx-background-color: transparent;
+}
+
+
+.saveDocBtn{
+    -fx-graphic: url("../img/btn/SaveButton.png");
+    -fx-background-color: transparent;
+}
+
+
+.textField{
+    -fx-background-color: #363636;
+    -fx-text-fill: white;
+}
+
+.chemistryBtn{
+    -fx-graphic: url("../img/btn/Courses/ChemCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.physicsBtn{
+    -fx-graphic: url("../img/btn/Courses/PhysCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.mathsBtn{
+    -fx-graphic: url("../img/btn/Courses/MathCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.bioBtn{
+    -fx-graphic: url("../img/btn/Courses/BioCourseButton.png");
+    -fx-background-color: transparent;
+}
+
+.scrollPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.gridPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.lbl{
+        -fx-font-size: 40px;
+        -fx-font-family: "Courier New";
+        -fx-text-fill: white;
+}
+
+.balancingActBtn{
+    -fx-graphic: url("../img/btn/sims/BalancingActSimButton.png");
+    -fx-background-color: transparent;
+}
+
+.balloonsAndStaticElectricityBtn{
+    -fx-graphic: url("../img/btn/sims/BalloonsAndStaticElectricitySimButton.png");
+    -fx-background-color: transparent;
+}
+
+.buildAnAtomBtn{
+    -fx-graphic: url("../img/btn/sims/BuildAnAtomSimButton.png");
+    -fx-background-color: transparent;
+}
+
+
+/* Chart Start */
+
+.chart-title{
+    -fx-text-fill: #1b74f2;
+}
+
+.axis {
+    -fx-font-size: 1.0em;
+    -fx-tick-label-fill: white;
+    -fx-font-family: Tahoma;
+    -fx-tick-length: 10;
+    -fx-minor-tick-length: 5;
+}
+
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+.default-color0.chart-series-line { -fx-stroke: #1b74f2;}
+.default-color0.chart-line-symbol { -fx-background-color: #1b74f2;}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: gray;
+}
+
+.chart-legend {
+   -fx-background-color:  transparent;
+   -fx-padding: 20px;
+}
+
+.chart-legend-item{
+    -fx-text-fill: transparent;
+}
+
+.axis-label {
+  -fx-text-fill: #1b74f2;
+}
+
+/* Chart End */

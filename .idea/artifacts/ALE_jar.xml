@@ -1,10 +1,15 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="ALE.jar">
+  <artifact type="jar" name="ALE:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/ALE_jar</output-path>
-    <root id="archive" name="ALE.jar.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
-      </element>
+    <root id="archive" name="ALE.jar">
+      <element id="module-output" name="ALE" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/lib/log4j-1.2.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/poi-ooxml-3.12-20150511.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/MySQL Connecter Java 5.1.36 Bin.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/ooxml-lib/xmlbeans-2.6.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/poi-scratchpad-3.12-20150511.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/poi-3.12-20150511.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/com/silverfox/ale/lib/POI 3.12/poi-ooxml-schemas-3.12-20150511.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
