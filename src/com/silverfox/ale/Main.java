@@ -71,8 +71,8 @@ public class Main extends Application {
     //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
     Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
-    double width = 1600;//screenSize.getWidth(); // gd.getDisplayMode().getWidth();
-    double height = 900;//screenSize.getHeight(); // gd.getDisplayMode().getHeight();
+    double width = screenSize.getWidth(); // gd.getDisplayMode().getWidth();
+    double height = screenSize.getHeight(); // gd.getDisplayMode().getHeight();
 
     //Login
     BorderPane loginPane;
@@ -375,6 +375,7 @@ public class Main extends Application {
         dashboardBtn.getStyleClass().add("homeBtn");
         dashboardBtn.setTooltip(dashboardToolTip);
         dashboardBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(dashboardGridPanel);
         });
 
@@ -385,6 +386,7 @@ public class Main extends Application {
         profileBtn.getStyleClass().add("profileBtn");
         profileBtn.setTooltip(profileToolTip);
         profileBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(profilePanel);
         });
 
@@ -395,6 +397,7 @@ public class Main extends Application {
         coursesBtn.getStyleClass().add("coursesBtn");
         coursesBtn.setTooltip(courseToolTip);
         coursesBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(coursesPanel);
             coursesPanel.setContent(coursesGridPanel);
             //miscContainer.getChildren().addAll(saveDocBtn);
@@ -407,6 +410,7 @@ public class Main extends Application {
         simsBtn.getStyleClass().add("simsBtn");
         simsBtn.setTooltip(simsToolTip);
         simsBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(simsPanel);
             simsPanel.setContent(simsGridPanel);
         });
@@ -418,7 +422,9 @@ public class Main extends Application {
         textEditorBtn.getStyleClass().add("textEditorBtn");
         //textEditorBtn.setTooltip(profileToolTip);
         textEditorBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(textEditorPanel);
+            miscContainer.getChildren().addAll(saveDocBtn);
         });
 
         wolframToolTip = new Tooltip();
@@ -428,6 +434,7 @@ public class Main extends Application {
         wolframBtn.getStyleClass().add("wolframBtn");
         wolframBtn.setTooltip(wolframToolTip);
         wolframBtn.setOnAction(e -> {
+            resetBtns();
             rootPane.setCenter(wolframPanel);
         });
 
@@ -443,7 +450,7 @@ public class Main extends Application {
         topPanel.setPrefWidth(width);
         topPanel.setAlignment(Pos.CENTER_RIGHT);
         topPanel.setPadding(new Insets(0,0,0,0));
-        topPanel.getChildren().addAll(minimizeBtn, closeBtn);
+        topPanel.getChildren().addAll(miscContainer, minimizeBtn, closeBtn);
 
 //-----------------------------------------------------------------------------------------------------> Left Panel End
 
@@ -509,8 +516,6 @@ public class Main extends Application {
         profileGridPanel.setGridLinesVisible(false);
         profileGridPanel.setPrefWidth(width - 208);
         profileGridPanel.setPrefHeight(860);
-
-
 
         profilePanel = new ScrollPane();
         profilePanel.getStyleClass().add("scrollPane");
@@ -657,7 +662,7 @@ public class Main extends Application {
 
         saveDocBtn = new Button();
         saveDocBtn.getStyleClass().add("saveDocBtn");
-        //topPanel.getChildren().add(saveDocBtn);
+        saveDocBtn.setText("Save");
         saveDocBtn.setOnAction(e -> {
             String saveName = JOptionPane.showInputDialog("Enter File Name");
             tmpRun.setText(stripHTMLTags(htmlEditor.getHtmlText()));
@@ -779,8 +784,10 @@ public class Main extends Application {
     }
 
     public void resetBtns(){
-        dashboardBtn.getStyleClass().addAll("homeBtn");
-        coursesBtn.getStyleClass().add("coursesBtn");
+        //dashboardBtn.getStyleClass().addAll("homeBtn");
+        //coursesBtn.getStyleClass().add("coursesBtn");
+
+        miscContainer.getChildren().removeAll(saveDocBtn);
     }
 
     public void displayCourse(String courseName){
