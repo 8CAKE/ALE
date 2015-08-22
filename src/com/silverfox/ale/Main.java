@@ -1,16 +1,12 @@
 package com.silverfox.ale;
 
+import com.silverfox.ale.calculators.calculator;
+import com.silverfox.ale.calculators.scientificCalculator;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -19,50 +15,52 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.image.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.TouchPoint;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Scanner;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main extends Application {
 
-    String superUser = "";
+    //Objects
+    aleChatClient client = new aleChatClient();
+    aleTools tools = new aleTools();
+    aleDB aleDB = new aleDB();
+    login login = new login();
 
     // Database Variables
     Connection dbCon = null;
     PreparedStatement dbStm = null;
     ResultSet dbRs = null;
     Boolean estCon = false;
+
+    String superUser = login.superUser;
+    String chatRoom = "";
 
     // Get Screen Size
 
@@ -101,6 +99,8 @@ public class Main extends Application {
     TextField emailField;
     TextField ageField;
     TextField schoolField;
+    TextField cityField;
+    TextField countryField;
     Button finalSignUpBtn;
 
     // Panes
@@ -112,15 +112,27 @@ public class Main extends Application {
     HBox miscContainer;
 
     //Dashboard
+    HBox dashBoardBase;
     ScrollPane dashboardPanel;
     GridPane dashboardGridPanel;
     Tooltip dashboardToolTip;
+
+    //Chat Area
+    VBox chatBox;
+    TextField chatRoomField;
+    TextArea messageArea;
+    TextArea messageInputArea;
 
     //Profile
     ScrollPane profilePanel;
     GridPane profileGridPanel;
     Tooltip profileToolTip;
     Label userNameLbl;
+    Label ageLbl;
+    Label emailLbl;
+    Label schoolLbl;
+    Button profilePictureBtn;
+    ResultSet profileContentRs;
 
     //Courses
     ScrollPane coursesPanel;
@@ -136,12 +148,23 @@ public class Main extends Application {
 
     //Text Editor
     ScrollPane textEditorPanel;
+    Tooltip textEditorToolTip;
     HTMLEditor htmlEditor;
     Button saveDocBtn;
 
     //Wolfram Alpha
     ScrollPane wolframPanel;
     Tooltip wolframToolTip;
+
+    //Wikipedia
+    ScrollPane wikipediaPanel;
+    Tooltip wikipediaToolTip;
+    WebEngine wikipediaWebEngine;
+
+    //Settings
+    ScrollPane settingsPanel;
+    GridPane settingsGridPanel;
+    Tooltip settingsToolTip;
 
     //Buttons
     Button dashboardBtn;
@@ -150,23 +173,46 @@ public class Main extends Application {
     Button simsBtn;
     Button textEditorBtn;
     Button wolframBtn;
+    Button wikipediaBtn;
+    Button settingsBtn;
     Button closeBtn;
     Button minimizeBtn;
 
-    //Course Btns
+    //Course Buttons
+    Button watchVidBtn;
+
     Button chemistryBtn;
     Button physicsBtn;
     Button mathsBtn;
     Button bioBtn;
 
     //Simulation Btns
-    Button alphaDecayBtn;
+    Button physicsSims;
+
     Button balancingActBtn;
+    Button forcesAndMotionBtn;
+
     Button balloonsAndStaticElectricityBtn;
     Button buildAnAtomBtn;
+    Button colorVisionBtn;
+
+    //Media Player
+    MediaPlayer mediaPlayer;
+    MediaView mediaView;
+
+    //Other
+    String calculatorName = "scientificCalculator";
+    Button calcBtn;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+
+        try{
+            dbCon = DriverManager.getConnection("jdbc:mysql://192.168.1.6:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
+            estCon = true;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
 //---------------------------------------------------------------------------------------------------> Login Pane Start
 
@@ -188,7 +234,7 @@ public class Main extends Application {
         passwordLoginField.getStyleClass().add("textField");
         passwordLoginField.setPromptText("Password");
 
-        //For quick access
+        //For quick access during development
         passwordLoginField.setText("1234");
 
         loginCloseBtn = new Button("");
@@ -231,13 +277,12 @@ public class Main extends Application {
             }
         });
 
-
         signupBtn = new Button("Sign Up");
         signupBtn.getStyleClass().add("signupBtn");
         signupBtn.setOnAction(e -> {
             usernameLoginField.setText(null);
             passwordLoginField.setText(null);
-            Scene signUpScene = new Scene(signUpPane, 300, 200);
+            Scene signUpScene = new Scene(signUpPane, 300, 250);
             primaryStage.setScene(signUpScene);
         });
 
@@ -253,7 +298,6 @@ public class Main extends Application {
         loginPane.getStyleClass().add("loginPane");
         loginPane.setTop(loginTopPanel);
         loginPane.setCenter(loginBox);
-
 
 //-----------------------------------------------------------------------------------------------------> Login Pane End
 
@@ -301,6 +345,14 @@ public class Main extends Application {
         schoolField.getStyleClass().add("textField");
         schoolField.setPromptText("School (Optional)");
 
+        cityField = new TextField();
+        cityField.getStyleClass().add("textField");
+        cityField.setPromptText("City (Optional)");
+
+        countryField = new TextField();
+        countryField.getStyleClass().add("textField");
+        countryField.setPromptText("Country (Optional)");
+
         finalSignUpBtn = new Button("Sign Up");
         finalSignUpBtn.getStyleClass().add("loginBtn");
         finalSignUpBtn.setOnAction(e -> {
@@ -310,13 +362,23 @@ public class Main extends Application {
                     try{
                         PreparedStatement psSignUp = null;
                         ResultSet rsSignUp = null;
-                        psSignUp = dbCon.prepareStatement("INSERT INTO userInfo(username, email, password, age, dob, " +
-                                "school, country, city) VALUES(" + usernameField.getText() + "," + emailField.getText()
-                                + "," + passwordField.getText() + "," + ageField.getText() + "," + "" + ","
-                                + schoolField.getText() + "," + ")");
-                        psSignUp.executeQuery();
-                    }catch (Exception signuperr){
-                        signuperr.printStackTrace();
+                        psSignUp = dbCon.prepareStatement("INSERT INTO userInfo VALUES(" + "\'"
+                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
+                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
+                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
+                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
+
+                        System.out.println("INSERT INTO userInfo VALUES(" + "\'"
+                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
+                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
+                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
+                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
+
+                        psSignUp.executeUpdate();
+                    }catch (Exception signupErr){
+                        System.out.println("<----- Sign Up Error Start ----->");
+                        signupErr.printStackTrace();
+                        System.out.println("<----- Sign Up Error End ----->");
                     }
                 }
             }else {
@@ -330,8 +392,7 @@ public class Main extends Application {
         signUpBox = new VBox();
         signUpBox.setPadding(new Insets(0, 0, 0, 0));
         signUpBox.getChildren().addAll(usernameField, passwordField, repeatPasswordField, emailField, ageField,
-                schoolField, signUpBtnBox);
-
+                schoolField, cityField, countryField,signUpBtnBox);
 
         signUpPane = new BorderPane();
         signUpPane.getStylesheets().add(Main.class.getResource("css/styleDark.css").toExternalForm());
@@ -357,6 +418,16 @@ public class Main extends Application {
 
         miscContainer = new HBox();
 
+        calcBtn = new Button();
+        calcBtn.getStyleClass().addAll("calcBtn");
+        calcBtn.setOnAction(e -> {
+            calculator calculator = new calculator();
+            scientificCalculator scientificCalculator = new scientificCalculator();
+            calculator.start(calculatorName);
+        });
+
+        miscContainer.getChildren().add(calcBtn);
+
         topPanel = new HBox(1);
         topPanel.getStyleClass().add("topPanel");
         topPanel.setPrefWidth(width);
@@ -368,15 +439,20 @@ public class Main extends Application {
 
 //---------------------------------------------------------------------------------------------------> Left Panel Start
 
+        Line initDivider = new Line();
+        initDivider.setStartX(0.0f);
+        initDivider.setEndX(205.0f);
+        initDivider.setStroke(Color.GRAY);
+
         dashboardToolTip = new Tooltip();
         dashboardToolTip.setText("Dashboard");
 
         dashboardBtn = new Button("");
-        dashboardBtn.getStyleClass().add("homeBtn");
+        dashboardBtn.getStyleClass().add("dashboardBtn");
         dashboardBtn.setTooltip(dashboardToolTip);
         dashboardBtn.setOnAction(e -> {
             resetBtns();
-            rootPane.setCenter(dashboardGridPanel);
+            rootPane.setCenter(dashBoardBase);
         });
 
         profileToolTip = new Tooltip();
@@ -387,6 +463,8 @@ public class Main extends Application {
         profileBtn.setTooltip(profileToolTip);
         profileBtn.setOnAction(e -> {
             resetBtns();
+            //profileContentRs = aleDB.getUserInfo(superUser);
+            //setProfileInfo();
             rootPane.setCenter(profilePanel);
         });
 
@@ -399,9 +477,14 @@ public class Main extends Application {
         coursesBtn.setOnAction(e -> {
             resetBtns();
             rootPane.setCenter(coursesPanel);
+            miscContainer.getChildren().addAll(watchVidBtn);
             coursesPanel.setContent(coursesGridPanel);
-            //miscContainer.getChildren().addAll(saveDocBtn);
         });
+
+        Line mainDivider = new Line();
+        mainDivider.setStartX(0.0f);
+        mainDivider.setEndX(205.0f);
+        mainDivider.setStroke(Color.GRAY);
 
         simsToolTip = new Tooltip();
         simsToolTip.setText("Simulations");
@@ -415,17 +498,22 @@ public class Main extends Application {
             simsPanel.setContent(simsGridPanel);
         });
 
-        profileToolTip = new Tooltip();
-        profileToolTip.setText("Profile");
+        textEditorToolTip = new Tooltip();
+        textEditorToolTip.setText("Text Editor");
 
         textEditorBtn = new Button();
         textEditorBtn.getStyleClass().add("textEditorBtn");
-        //textEditorBtn.setTooltip(profileToolTip);
+        textEditorBtn.setTooltip(textEditorToolTip);
         textEditorBtn.setOnAction(e -> {
             resetBtns();
             rootPane.setCenter(textEditorPanel);
             miscContainer.getChildren().addAll(saveDocBtn);
         });
+
+        Line toolsDivider = new Line();
+        toolsDivider.setStartX(0.0f);
+        toolsDivider.setEndX(205.0f);
+        toolsDivider.setStroke(Color.GRAY);
 
         wolframToolTip = new Tooltip();
         wolframToolTip.setText("Wolfram Alpha");
@@ -438,12 +526,38 @@ public class Main extends Application {
             rootPane.setCenter(wolframPanel);
         });
 
+        wikipediaToolTip = new Tooltip();
+        wikipediaToolTip.setText("Wikipedia");
+
+        wikipediaBtn = new Button();
+        wikipediaBtn.getStyleClass().add("wikipediaBtn");
+        wikipediaBtn.setTooltip(wikipediaToolTip);
+        wikipediaBtn.setOnAction(e -> {
+            resetBtns();
+            rootPane.setCenter(wikipediaPanel);
+        });
+
+        Line sitesDivider = new Line();
+        sitesDivider.setStartX(0.0f);
+        sitesDivider.setEndX(205.0f);
+        sitesDivider.setStroke(Color.GRAY);
+
+        settingsToolTip = new Tooltip("Settings");
+
+        settingsBtn = new Button();
+        settingsBtn.getStyleClass().add("settingsBtn");
+        settingsBtn.setTooltip(settingsToolTip);
+        settingsBtn.setOnAction(e -> {
+            resetBtns();
+            rootPane.setCenter(settingsPanel);
+        });
+
+
         leftPanel = new VBox(0);
         //leftPanel.setPrefWidth(1);
         leftPanel.getStyleClass().add("leftPane");
-        leftPanel.getChildren().addAll(dashboardBtn, profileBtn, coursesBtn, simsBtn, textEditorBtn, wolframBtn);
-
-        miscContainer = new HBox();
+        leftPanel.getChildren().addAll(initDivider, dashboardBtn, profileBtn, coursesBtn, mainDivider, simsBtn,
+                textEditorBtn, toolsDivider, wolframBtn, wikipediaBtn, sitesDivider, settingsBtn);
 
         topPanel = new HBox(1);
         topPanel.getStyleClass().add("topPanel");
@@ -473,6 +587,7 @@ public class Main extends Application {
         lineChart.setTitle("Line Chart");
         XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
         series.setName("My Data");
+
         // populating the series with data
         series.getData().add(new XYChart.Data<Number, Number>(0.25, 36));
         series.getData().add(new XYChart.Data<Number, Number>(1, 23));
@@ -484,12 +599,54 @@ public class Main extends Application {
         lineChart.setPrefHeight(300);
         lineChart.setLegendVisible(false);
 
+        chatRoomField = new TextField();
+        chatRoomField.getStyleClass().add("textField");
+        chatRoomField.setPromptText("Enter Chat Room");
+        chatRoomField.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.getCode() == KeyCode.ENTER){
+                    chatRoom = chatRoomField.getText();
+                    client.connect(messageArea, messageInputArea, superUser, chatRoom);
+                }
+            }
+        });
+
+        messageArea = new TextArea();
+        messageArea.getStyleClass().add("textArea");
+        messageArea.setWrapText(true);
+        messageArea.setPrefHeight(740);
+        messageArea.setEditable(false);
+
+        messageInputArea = new TextArea();
+        messageInputArea.getStyleClass().add("textArea");
+        messageInputArea.setWrapText(true);
+        messageInputArea.setPrefHeight(100);
+        messageInputArea.setPromptText("Enter Message");
+        messageInputArea.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER){
+                    client.send(messageArea, messageInputArea, superUser, chatRoom);
+                    event.consume();
+                }
+            }
+        });
+
+        chatBox = new VBox();
+        chatBox.setPrefWidth(250);
+        chatBox.setMaxWidth(250);
+        chatBox.getStyleClass().add("chatBox");
+        chatBox.getChildren().addAll(chatRoomField,messageArea, messageInputArea);
+
+        //client.test(messageArea, messageInputArea);
+
         dashboardGridPanel = new GridPane();
         dashboardGridPanel.getStyleClass().add("gridPane");
         dashboardGridPanel.setVgap(5);
         dashboardGridPanel.setHgap(5);
         dashboardGridPanel.setGridLinesVisible(false);
-        dashboardGridPanel.setPrefWidth(width - 208);
+        dashboardGridPanel.setPrefWidth(width - 430);
         dashboardGridPanel.setPrefHeight(860);
 
         dashboardGridPanel.setColumnIndex(lineChart, 0);
@@ -497,25 +654,34 @@ public class Main extends Application {
         dashboardGridPanel.getChildren().addAll(lineChart);
 
         dashboardPanel = new ScrollPane();
-        dashboardPanel.getStyleClass().add("centerPanel");
-        dashboardPanel.setPrefWidth(width - 208);
+        dashboardPanel.getStyleClass().add("scrollPane");
+        dashboardPanel.setPrefWidth(width - 400);
         dashboardPanel.setPrefHeight(860);
         dashboardPanel.setContent(dashboardGridPanel);
+
+        dashBoardBase = new HBox();
+        dashBoardBase.setPrefWidth(width - (leftPanel.getWidth() + chatBox.getWidth()));
+        dashBoardBase.setPrefHeight(860);
+        dashBoardBase.getChildren().addAll(dashboardPanel, chatBox);
 
 //-------------------------------------------------------------------------------------------------> Dashboard Pane End
 
 //-------------------------------------------------------------------------------------------------> Profile Pane Start
 
-        userNameLbl = new Label(superUser);
-        userNameLbl.getStyleClass().add("lbl");
+        profilePictureBtn = new Button();
+        profilePictureBtn.getStyleClass().addAll("profilePictureBtn");
 
         profileGridPanel = new GridPane();
         profileGridPanel.getStyleClass().add("gridPane");
         profileGridPanel.setVgap(5);
         profileGridPanel.setHgap(5);
-        profileGridPanel.setGridLinesVisible(false);
+        profileGridPanel.setGridLinesVisible(true);
         profileGridPanel.setPrefWidth(width - 208);
         profileGridPanel.setPrefHeight(860);
+        profileGridPanel.setAlignment(Pos.TOP_CENTER);
+
+        profileGridPanel.setRowIndex(profilePictureBtn, 0);
+        profileGridPanel.setColumnIndex(profilePictureBtn, 0);
 
         profilePanel = new ScrollPane();
         profilePanel.getStyleClass().add("scrollPane");
@@ -525,6 +691,23 @@ public class Main extends Application {
 //---------------------------------------------------------------------------------------------------> Profile Pane End
 
 //-------------------------------------------------------------------------------------------------> Courses Pane Start
+
+        String course = "";
+
+        //Media media = new Media("media.mp4");
+
+        //mediaPlayer = new MediaPlayer(media);
+        //mediaPlayer.setAutoPlay(true);
+
+       // mediaView = new MediaView(mediaPlayer);
+
+
+        watchVidBtn = new Button("Watch Video");
+        watchVidBtn.getStyleClass().add("btn");
+        watchVidBtn.setOnAction(e -> {
+
+           // coursesPanel.setContent(mediaView);
+        });
 
         chemistryBtn = new Button();
         chemistryBtn.getStyleClass().add("chemistryBtn");
@@ -589,8 +772,15 @@ public class Main extends Application {
         browser.setPrefHeight(860);
         browser.setPrefWidth(width - 208);
 
-        Label physLbl = new Label("Physics");
-        physLbl.getStyleClass().add("lbl");
+        Label motionLbl = new Label("Motion");
+        motionLbl.getStyleClass().add("lbl");
+
+        forcesAndMotionBtn = new Button();
+        forcesAndMotionBtn.getStyleClass().add("forcesAndMotionBtn");
+        forcesAndMotionBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/balancing-act/latest/balancing-act_en.html");
+            simsPanel.setContent(browser);
+        });
 
         balancingActBtn = new Button();
         balancingActBtn.getStyleClass().add("balancingActBtn");
@@ -605,12 +795,20 @@ public class Main extends Application {
             webEngine.load("https://phet.colorado.edu/sims/html/balloons-and-static-electricity/latest/" +
                     "balloons-and-static-electricity_en.html");
             simsPanel.setContent(browser);
+
         });
 
         buildAnAtomBtn = new Button();
         buildAnAtomBtn.getStyleClass().add("buildAnAtomBtn");
         buildAnAtomBtn.setOnAction(e -> {
             webEngine.load("https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_en.html");
+            simsPanel.setContent(browser);
+        });
+
+        colorVisionBtn = new Button();
+        colorVisionBtn.getStyleClass().add("colorVisionBtn");
+        colorVisionBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/color-vision/latest/color-vision_en.html");
             simsPanel.setContent(browser);
         });
 
@@ -622,15 +820,18 @@ public class Main extends Application {
         simsGridPanel.setPrefWidth(width - 208);
         simsGridPanel.setPrefHeight(860);
 
-        simsGridPanel.setRowIndex(physLbl, 0);
-        simsGridPanel.setColumnIndex(physLbl, 0);
+        simsGridPanel.setRowIndex(motionLbl, 0);
+        simsGridPanel.setColumnIndex(motionLbl, 0);
+        simsGridPanel.setRowIndex(forcesAndMotionBtn, 1);
+        simsGridPanel.setColumnIndex(forcesAndMotionBtn, 0);
         simsGridPanel.setRowIndex(balancingActBtn, 1);
-        simsGridPanel.setColumnIndex(balancingActBtn, 0);
-        simsGridPanel.setRowIndex(balloonsAndStaticElectricityBtn, 1);
-        simsGridPanel.setColumnIndex(balloonsAndStaticElectricityBtn, 1);
+        simsGridPanel.setColumnIndex(balancingActBtn, 1);
         simsGridPanel.setRowIndex(buildAnAtomBtn, 1);
         simsGridPanel.setColumnIndex(buildAnAtomBtn, 2);
-        simsGridPanel.getChildren().addAll(physLbl, balancingActBtn, balloonsAndStaticElectricityBtn, buildAnAtomBtn);
+        simsGridPanel.setRowIndex(colorVisionBtn, 1);
+        simsGridPanel.setColumnIndex(colorVisionBtn, 3);
+        simsGridPanel.getChildren().addAll(motionLbl, forcesAndMotionBtn, balancingActBtn, buildAnAtomBtn,
+                colorVisionBtn);
 
         simsPanel = new ScrollPane();
         simsPanel.getStyleClass().add("scrollPane");
@@ -661,12 +862,12 @@ public class Main extends Application {
         XWPFRun tmpRun = tmpParagraph.createRun();
 
         saveDocBtn = new Button();
-        saveDocBtn.getStyleClass().add("saveDocBtn");
+        saveDocBtn.getStyleClass().add("btn");
         saveDocBtn.setText("Save");
         saveDocBtn.setOnAction(e -> {
             String saveName = JOptionPane.showInputDialog("Enter File Name");
-            tmpRun.setText(stripHTMLTags(htmlEditor.getHtmlText()));
-            tmpRun.setFontSize(18);
+            tmpRun.setText(tools.stripHTMLTags(htmlEditor.getHtmlText()));
+            tmpRun.setFontSize(12);
             try {
                 document.write(new FileOutputStream(new File("C:\\Users\\Josh\\Documents\\" + saveName + ".docx")));
             }catch(Exception q){ q.printStackTrace();}
@@ -681,12 +882,17 @@ public class Main extends Application {
 
 //-------------------------------------------------------------------------------------------------> Wolfram Pane Start
 
+        Boolean wolframActive = false;
         try {
             final WebView wolframWeb = new WebView();
+            wolframWeb.getStyleClass().add("webView");
             final WebEngine wolframWebEngine = wolframWeb.getEngine();
             wolframWeb.setPrefHeight(860);
             wolframWeb.setPrefWidth(width - 208);
-            wolframWebEngine.load("http://www.wolframalpha.com/");
+            if (wolframActive == false){
+                wolframWebEngine.load("http://www.wolframalpha.com/");
+                wolframActive = true;
+            }
             wolframPanel = new ScrollPane();
             wolframPanel.setContent(wolframWeb);
         }catch(Exception e){
@@ -695,10 +901,40 @@ public class Main extends Application {
 
 //---------------------------------------------------------------------------------------------------> Wolfram Pane End
 
+//-------------------------------------------------------------------------------------------------> Wikipedia Pane Start
+
+        Boolean wikipediaActive = false;
+        try {
+            final WebView wikipediaWeb = new WebView();
+            wikipediaWeb.getStyleClass().add("scrollPane");
+            wikipediaWebEngine = wikipediaWeb.getEngine();
+            wikipediaWeb.setPrefHeight(860);
+            wikipediaWeb.setPrefWidth(width - 208);
+            if(wikipediaActive == false){
+                wikipediaWebEngine.load("https://en.wikipedia.org/wiki/Main_Page");
+                wikipediaActive = true;
+            }
+            wikipediaPanel = new ScrollPane();
+            wikipediaPanel.setContent(wikipediaWeb);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+//--------------------------------------------------------------------------------------------------> Wikipedia Pane End
+
+//-------------------------------------------------------------------------------------------------> Settings Pane Start
+
+        settingsGridPanel = new GridPane();
+        settingsGridPanel.getStyleClass().add("gridPanel");
+
+        settingsPanel = new ScrollPane();
+        settingsPanel.getStyleClass().add("scrollPane");
+
+//---------------------------------------------------------------------------------------------------> Settings Pane End
         rootPane = new BorderPane();
         rootPane.setLeft(leftPanel);
         rootPane.setTop(topPanel);
-        rootPane.setCenter(dashboardPanel);
+        rootPane.setCenter(dashBoardBase);
         rootPane.getStyleClass().add("rootPane");
         rootPane.getStylesheets().add(Main.class.getResource("css/styleDark.css").toExternalForm());
 
@@ -706,8 +942,8 @@ public class Main extends Application {
         primaryStage.setTitle("ALE");
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.getIcons().add(new javafx.scene.image.Image(Main.class
-                .getResourceAsStream("img/btn/aleIcon.png")));
-        primaryStage.setScene(new Scene(loginPane, 300, 120));
+                .getResourceAsStream("img/aleIcon.png")));
+        primaryStage.setScene(new Scene(loginPane, 300, 123));
         primaryStage.show();
     }
 
@@ -716,6 +952,11 @@ public class Main extends Application {
     }
 
     public void systemClose(){
+
+        if(client.isConnected == true){
+            client.disconnect(messageArea, messageInputArea, superUser);
+        }
+
         try{
             if (dbCon != null){
                 dbCon.close();
@@ -733,10 +974,11 @@ public class Main extends Application {
     public boolean connectToDB(){
         boolean estCon = false;
         try{
-            dbCon = DriverManager.getConnection("jdbc:mysql://localhost:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
+            dbCon = DriverManager.getConnection("jdbc:mysql://192.168.1.6:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
             estCon = true;
         }catch(Exception e){
             e.printStackTrace();
+            System.out.println("Could not connect to db");
         }
 
         return estCon;
@@ -746,7 +988,9 @@ public class Main extends Application {
         boolean validUser = false;
         try {
 
-            dbStm = dbCon.prepareStatement("SELECT * FROM userInfo");
+            dbStm = dbCon.prepareStatement("SELECT * FROM userInfo WHERE username = " + "\"" + username + "\""
+                    + ";" );
+
             dbRs = dbStm.executeQuery();
 
                 while (dbRs.next()){
@@ -761,7 +1005,9 @@ public class Main extends Application {
                     if(((username.equals(un) == true) && ((password.equals(pw) == true)))){
                         validUser = true;
                         System.out.println("Valid User");
+
                 }
+
             }
 
         }catch (Exception e){
@@ -787,15 +1033,17 @@ public class Main extends Application {
         //dashboardBtn.getStyleClass().addAll("homeBtn");
         //coursesBtn.getStyleClass().add("coursesBtn");
 
-        miscContainer.getChildren().removeAll(saveDocBtn);
+        miscContainer.getChildren().removeAll(saveDocBtn, watchVidBtn);
     }
 
     public void displayCourse(String courseName){
-        File f = new File("C:\\Users\\Josh\\IdeaProjects\\ALE\\src\\com\\silverfox\\ale\\course\\"
-                + courseName + ".html");
+        //File f = new File("C:\\Users\\Josh\\IdeaProjects\\ALE\\src\\com\\silverfox\\ale\\course\\"
+                //+ courseName + ".html");
+        //f.toURI().toURL().toString()
 
         try{
-            courseWebEngine.load(f.toURI().toURL().toString());
+            courseWebEngine.load("http://localhost:63342/ALE/com/silverfox/ale/course/" + courseName + ".html");
+
             coursesPanel.setContent(courseView);
         }catch (Exception e){
             e.printStackTrace();
@@ -803,18 +1051,55 @@ public class Main extends Application {
 
     }
 
-    private String stripHTMLTags(String htmlText) {
+    public void setProfileInfo(){
+        String profileUserName = "";
+        String profileEmail = "";
+        String profileAge = "";
+        String profileSchool = "";
+        String profileCountry = "";
+        String profileCity = "";
 
-        Pattern pattern = Pattern.compile("<[^>]*>");
-        Matcher matcher = pattern.matcher(htmlText);
-        final StringBuffer sb = new StringBuffer(htmlText.length());
-        while(matcher.find()) {
-            matcher.appendReplacement(sb, " ");
+        try {
+            while (profileContentRs.next()){
+
+                profileUserName = profileContentRs.getString("username");
+                System.out.println(profileUserName);
+
+                profileEmail = profileContentRs.getString("email");
+                System.out.println(profileEmail);
+
+                profileAge = profileContentRs.getString("age");
+                System.out.println(profileAge);
+
+                profileSchool = profileContentRs.getString("school");
+                System.out.println(profileSchool);
+
+                profileCountry = profileContentRs.getString("country");
+                System.out.println(profileCountry);
+
+                profileCity = profileContentRs.getString("city");
+                System.out.println(profileCity);
+
+            }
+        }catch (Exception profileSetContentException){
+            System.out.println("profileSetContentException: ");
+            profileSetContentException.printStackTrace();
         }
-        matcher.appendTail(sb);
-        return(sb.toString().trim());
 
+        userNameLbl.setText(profileUserName);
+        emailLbl.setText(profileEmail);
+        ageLbl.setText(profileAge);
+        schoolLbl.setText(profileSchool);
+
+        profileGridPanel.setRowIndex(userNameLbl, 1);
+        profileGridPanel.setColumnIndex(userNameLbl, 0);
+        profileGridPanel.setRowIndex(emailLbl, 2);
+        profileGridPanel.setColumnIndex(emailLbl, 0);
+        profileGridPanel.setRowIndex(ageLbl, 3);
+        profileGridPanel.setColumnIndex(ageLbl, 0);
+        profileGridPanel.setRowIndex(schoolLbl, 4);
+        profileGridPanel.setColumnIndex(schoolLbl, 0);
+        profileGridPanel.getChildren().addAll(profilePictureBtn, userNameLbl, emailLbl, ageLbl, schoolLbl);
     }
-
 
 }

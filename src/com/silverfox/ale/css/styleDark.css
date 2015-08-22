@@ -5,23 +5,27 @@
 }
 
 .loginSystemBtn{
-    -fx-graphic: url("../img/btn/smallSystemButton.png");
+    -fx-graphic: url("../img/styleDark/System/smallSystemBtn.png");
     -fx-background-color: transparent;
 }
 
 .loginSystemBtn:hover{
-    -fx-graphic: url("../img/btn/smallSystemButtonHover.png");
+    -fx-graphic: url("../img/styleDark/System/smallSystemBtnHover.png");
     -fx-background-color: transparent;
 }
 
 .loginBtn{
     -fx-background-color: #363636;
     -fx-text-fill: white;
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
+    -fx-background-radius: 0;
 }
 
 .signupBtn{
     -fx-background-color: #363636;
     -fx-text-fill: white;
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
+    -fx-background-radius: 0;
 }
 
 .errorLbl{
@@ -35,24 +39,27 @@
     -fx-background-color: #2a2a2a;
 }
 
+
 /* Top Panel Start */
+
 .topPanel{
     -fx-background-color: #363636;
 }
 
 .systemBtn{
-    -fx-graphic: url("../img/btn/systemButton.png");
+    -fx-graphic: url("../img/styleDark/System/systemBtn.png");
     -fx-background-color: transparent;
 }
 
 .systemBtn:hover{
-    -fx-graphic: url("../img/btn/systemButtonHover.png");
-    -fx-background-color: transparent;
+    -fx-graphic: url("../img/styleDark/System/systemBtnHover.png");
     -fx-transition: all 5s ease-in-out;
 }
+
 /* Top Panel End */
 
 
+/* Other Panes Start */
 
 .leftPane{
     -fx-background-color: #363636;
@@ -62,90 +69,197 @@
     -fx-background-color: #2a2a2a;
 }
 
-.homeBtn{
-    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
-    -fx-background-color: transparent;
+.chatBox{
+    -fx-background-color: #363636;
 }
 
-.homeBtn:hover{
-    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
+/* Other Panes End */
+
+
+/* Buttons Start */
+
+.btn{
     -fx-background-color: transparent;
+    -fx-padding: 5 22 5 22;
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 2;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 11pt;
+    -fx-text-fill: #d8d8d8;
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
 }
 
-.homeBtnSelected{
-    -fx-graphic: url("../img/btn/DashBoardButtonV2.png");
-    -fx-background-color: transparent;
+.btn:hover{
+    -fx-background-color: #636363;
 }
 
-.coursesBtn{
-    -fx-graphic: url("../img/btn/CoursesButtonV2.png");
+.dashboardBtn{
+    -fx-graphic: url("../img/styleDark/Navigation/dashboardBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
 }
 
-.coursesBtn:hover{
-    -fx-graphic: url("../img/btn/CoursesButtonV2.png");
-    -fx-background-color: transparent;
-}
-
-.simsBtn{
-    -fx-graphic: url("../img/btn/SimsButtonV2.png");
-    -fx-background-color: transparent;
-}
-
-.simsBtn:hover{
-    -fx-graphic: url("../img/btn/SimsButtonV2.png");
-    -fx-background-color: transparent;
+.dashboardBtn:hover{
+    -fx-background-color: #636363;
 }
 
 .profileBtn{
-    -fx-graphic: url("../img/btn/ProfileButtonV2.png");
+    -fx-graphic: url("../img/styleDark/Navigation/profileBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
 }
 
 .profileBtn:hover{
-    -fx-graphic: url("../img/btn/ProfileButtonV2.png");
+    -fx-background-color: #636363;
+}
+
+.coursesBtn{
+    -fx-graphic: url("../img/styleDark/Navigation/coursesBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.coursesBtn:hover{
+    -fx-background-color: #636363;
+}
+
+.simsBtn{
+    -fx-graphic: url("../img/styleDark/Navigation/simulationsBtn.png");
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.simsBtn:hover{
+    -fx-background-color: #636363;
 }
 
 .textEditorBtn{
-    -fx-graphic: url("../img/btn/TextEditorButtonV2.png");
+    -fx-graphic: url("../img/styleDark/Navigation/textEditorBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.textEditorBtn:hover{
+    -fx-background-color: #636363;
 }
 
 .wolframBtn{
-    -fx-graphic: url("../img/btn/WolframAlphaButtonV2.png");
+    -fx-graphic: url("../img/styleDark/Navigation/wolframAlphaBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
 }
 
 .wolframBtn:hover{
-    -fx-graphic: url("../img/btn/WolframAlphaButtonV2.png");
-    -fx-background-color: transparent;
+    -fx-background-color: #636363;
 }
 
-
-.saveDocBtn{
-    -fx-graphic: url("../img/btn/SaveButton.png");
+.wikipediaBtn{
+    -fx-graphic: url("../img/styleDark/Navigation/wikipediaBtn.png");
     -fx-background-color: transparent;
+    -fx-background-radius: 0;
 }
+
+.wikipediaBtn:hover{
+    -fx-background-color: #636363;
+}
+
+.settingsBtn{
+    -fx-graphic: url("../img/styleDark/Navigation/settingsBtn.png");
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.settingsBtn:hover{
+    -fx-background-color: #636363;
+}
+
+.profilePictureBtn{
+        -fx-graphic: url("../img/btn/profilePictureButton.png");
+        -fx-background-color: transparent;
+        -fx-background-radius: 0;
+}
+
+.calcBtn{
+    -fx-graphic: url("../img/styleDark/calculatorBtn.png");
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.calcBtn:hover{
+    -fx-background-color: #636363;
+}
+
+/* Buttons End */
 
 
 .textField{
     -fx-background-color: #363636;
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
+    -fx-background-radius: 0;
     -fx-text-fill: white;
 }
 
+
+
+/* Text Area Start */
+
+.textArea{
+    -fx-background-insets: 0 0 0 0, 0, 1, 2;
+    -fx-text-fill: white;
+}
+
+.textArea, .textArea .content{
+    -fx-background-color: #363636;
+    -fx-border-color: #363636;
+    -fx-border-radius: 0;
+}
+
+.textArea .scroll-bar:vertical ,
+.textArea .scroll-bar:horizontal{
+    -fx-background-color: transparent;
+}
+
+.textArea .increment-button ,
+.textArea .decrement-button{
+    -fx-background-color: transparent;
+}
+
+.textArea .scroll-bar:vertical .track ,
+.textArea .scroll-bar:horizontal .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+
+.textArea .scroll-bar:vertical .thumb ,
+.textArea .scroll-bar:horizontal .thumb{
+    -fx-background-color: derive(gray,80%);
+    -fx-background-insets: 0,0,0;
+    -fx-background-radius: 0em;
+}
+
+.textArea .scroll-bar .thumb ,
+.textArea .scroll-bar .thumb{
+    -fx-background-color: derive(gray,50%);
+}
+
+
+/* Text Area End */
+
 .chemistryBtn{
-    -fx-graphic: url("../img/btn/Courses/ChemCourseButton.png");
+    -fx-graphic: url("../img/styleDark/Courses/chemCourseBtn.png");
     -fx-background-color: transparent;
 }
 
 .physicsBtn{
-    -fx-graphic: url("../img/btn/Courses/PhysCourseButton.png");
+    -fx-graphic: url("../img/styleDark/Courses/physCourseBtn.png");
     -fx-background-color: transparent;
 }
 
 .mathsBtn{
-    -fx-graphic: url("../img/btn/Courses/MathCourseButton.png");
+    -fx-graphic: url("../img/styleDark/Courses/mathCourseBtn.png");
     -fx-background-color: transparent;
 }
 
@@ -154,9 +268,81 @@
     -fx-background-color: transparent;
 }
 
+
+/* Scroll Pane Start */
+
 .scrollPane{
     -fx-background-color: #2a2a2a;
 }
+
+.scrollPane .scroll-bar:vertical ,
+.scrollPane .scroll-bar:horizontal{
+    -fx-background-color: transparent;
+}
+
+.scrollPane .increment-button ,
+.scrollPane .decrement-button{
+    -fx-background-color: transparent;
+}
+
+.scrollPane .scroll-bar:vertical .track ,
+.scrollPane .scroll-bar:horizontal .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+
+.scrollPane .scroll-bar:vertical .thumb ,
+.scrollPane .scroll-bar:horizontal .thumb{
+    -fx-background-color: derive(gray,80%);
+    -fx-background-insets: 0,0,0;
+    -fx-background-radius: 0em;
+}
+
+.scrollPane .scroll-bar .thumb ,
+.scrollPane .scroll-bar .thumb{
+    -fx-background-color: derive(gray,50%);
+}
+
+/* Scroll Pane End */
+
+
+/* Web view Start */
+
+.webView{
+    -fx-background-insets: 0,0,0;
+}
+
+.webView .scroll-bar:vertical ,
+.webView  .scroll-bar:horizontal{
+    -fx-background-color: transparent;
+}
+
+.webView .increment-button ,
+.webView .decrement-button{
+    -fx-background-color: transparent;
+}
+
+.webView .scroll-bar:vertical .track ,
+.webView .scroll-bar:horizontal .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+
+.webView .scroll-bar:vertical .thumb ,
+.webView .scroll-bar:horizontal .thumb{
+    -fx-background-color: derive(#7e7e7e, 80%);
+    -fx-background-insets: 0,0,0;
+    -fx-background-radius: 0em;
+}
+
+.webView .scroll-bar .thumb ,
+.webView .scroll-bar .thumb{
+    -fx-background-color: derive(#7e7e7e, 80%);
+}
+
+/* Web view End */
 
 .gridPane{
     -fx-background-color: #2a2a2a;
@@ -168,20 +354,41 @@
         -fx-text-fill: white;
 }
 
+.profileLbl{
+        -fx-font-size: 24px;
+        -fx-font-family: "Courier New";
+        -fx-text-fill: white;
+}
+
+
+/* Simulations Start */
+
+.forcesAndMotionBtn{
+    -fx-graphic: url("../img/styleDark/Simulations/forcesAndMotionBtn.png");
+    -fx-background-color: transparent;
+}
+
 .balancingActBtn{
-    -fx-graphic: url("../img/btn/sims/BalancingActSimButton.png");
+    -fx-graphic: url("../img/styleDark/Simulations/balancingActBtn.png");
     -fx-background-color: transparent;
 }
 
 .balloonsAndStaticElectricityBtn{
-    -fx-graphic: url("../img/btn/sims/BalloonsAndStaticElectricitySimButton.png");
+    -fx-graphic: url("../img/styleDark/Simulations/balloonsAndStaticElectricityBtn.png");
     -fx-background-color: transparent;
 }
 
 .buildAnAtomBtn{
-    -fx-graphic: url("../img/btn/sims/BuildAnAtomSimButton.png");
+    -fx-graphic: url("../img/styleDark/Simulations/buildAnAtomBtn.png");
     -fx-background-color: transparent;
 }
+
+.colorVisionBtn{
+    -fx-graphic: url("../img/styleDark/Simulations/colorVisionBtn.png");
+    -fx-background-color: transparent;
+}
+
+/* Simulations End */
 
 
 /* Chart Start */
