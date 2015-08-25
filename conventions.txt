@@ -1,0 +1,7 @@
+Throwing Exceptions
+
+catch(ExceptionName exceptionnameExcep){
+    System.out.println("<----- ExceptionName Exception in Exception Location ----->")
+    exceptionnameExcep.printStackTrace;
+    System.out.println("<---------->\n")
+}

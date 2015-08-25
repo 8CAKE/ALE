@@ -1,9 +1,8 @@
 
 GUI Related Bugs
 1. Null Pointers caused by get screen
-2. When jar artifact is built and run the dashboard button is not present and the dashboard pane is not set
-3. The scroll bar for the text editor only extends one half of the screen
-4. When a sim is loaded and any other sim is loaded after that, the first loaded one is displayed
+2.
+3.
+4. When a sim is loaded and any other sim is loaded after that, the first loaded one is displayed before loading the desired one
 
 Chat Related Bugs
-1. Cannot receive messages

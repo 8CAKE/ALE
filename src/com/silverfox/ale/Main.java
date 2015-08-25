@@ -1,7 +1,9 @@
 package com.silverfox.ale;
 
+import com.silverfox.ale.aleXML.aleXMLParser;
 import com.silverfox.ale.calculators.calculator;
 import com.silverfox.ale.calculators.scientificCalculator;
+import com.silverfox.ale.course.biology.biology;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -17,12 +19,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
@@ -30,6 +31,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -40,18 +42,20 @@ import org.apache.poi.xwpf.usermodel.XWPFRun;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.IOException;
+import java.sql.*;
 
 public class Main extends Application {
+
+
 
     //Objects
     aleChatClient client = new aleChatClient();
     aleTools tools = new aleTools();
-    aleDB aleDB = new aleDB();
-    login login = new login();
+    aleXMLParser xmlParser = new aleXMLParser();
+
+    biology biologyCourse = new biology();
+
 
     // Database Variables
     Connection dbCon = null;
@@ -59,7 +63,7 @@ public class Main extends Application {
     ResultSet dbRs = null;
     Boolean estCon = false;
 
-    String superUser = login.superUser;
+    String superUser = "";
     String chatRoom = "";
 
     // Get Screen Size
@@ -68,9 +72,13 @@ public class Main extends Application {
     * The Screen size has just been set to a default of 1600 x 900*/
     //GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
-    Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
-    double width = screenSize.getWidth(); // gd.getDisplayMode().getWidth();
-    double height = screenSize.getHeight(); // gd.getDisplayMode().getHeight();
+
+    Rectangle2D screenSize;
+    double width;
+    double height;
+
+    double programWidth;
+    double programHeight;
 
     //Login
     BorderPane loginPane;
@@ -144,6 +152,9 @@ public class Main extends Application {
     //Simulations
     ScrollPane simsPanel;
     GridPane simsGridPanel;
+    VBox simsBox;
+    FlowPane motionSimsFlowPane;
+    FlowPane soundAndWavesFlowPane;
     Tooltip simsToolTip;
 
     //Text Editor
@@ -186,11 +197,14 @@ public class Main extends Application {
     Button mathsBtn;
     Button bioBtn;
 
-    //Simulation Btns
+    //Simulation Buttons
     Button physicsSims;
 
     Button balancingActBtn;
     Button forcesAndMotionBtn;
+    Button energySkateParkBtn;
+
+    Button wavesOnAStringBtn;
 
     Button balloonsAndStaticElectricityBtn;
     Button buildAnAtomBtn;
@@ -204,203 +218,33 @@ public class Main extends Application {
     String calculatorName = "scientificCalculator";
     Button calcBtn;
 
+
     @Override
     public void start(Stage primaryStage) throws Exception{
+
+        try {
+            screenSize = Screen.getPrimary().getVisualBounds();
+            width = screenSize.getWidth(); // gd.getDisplayMode().getWidth();
+            height = screenSize.getHeight(); // gd.getDisplayMode().getHeight();
+        }catch(Exception excep){
+            System.out.println("<----- Exception in  Get Screen Size ----->");
+            excep.printStackTrace();
+            System.out.println("<---------->\n");
+        }
 
         try{
             dbCon = DriverManager.getConnection("jdbc:mysql://192.168.1.6:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
             estCon = true;
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(SQLException sqlExcep){
+            System.out.println("<----- SQL Exception in Establishing Database Connection ----->");
+            sqlExcep.printStackTrace();
+            System.out.println("<---------->\n");
         }
 
-//---------------------------------------------------------------------------------------------------> Login Pane Start
-
-        loginLbl = new Label("Login");
-        loginLbl.getStyleClass().add("lbl");
-
-        errorLbl = new Label("");
-        errorLbl.getStyleClass().add("errorLbl");
-        errorLbl.setVisible(false);
-
-        usernameLoginField = new TextField();
-        usernameLoginField.getStyleClass().add("textField");
-        usernameLoginField.setPromptText("Username");
-
-        //For quick access
-        usernameLoginField.setText("sample");
-
-        passwordLoginField = new PasswordField();
-        passwordLoginField.getStyleClass().add("textField");
-        passwordLoginField.setPromptText("Password");
-
-        //For quick access during development
-        passwordLoginField.setText("1234");
-
-        loginCloseBtn = new Button("");
-        loginCloseBtn.getStyleClass().add("loginSystemBtn");
-        loginCloseBtn.setOnAction(e -> {
-            systemClose();
-        });
-
-        loginMinimizeBtn = new Button("");
-        loginMinimizeBtn.getStyleClass().add("loginSystemBtn");
-        loginMinimizeBtn.setOnAction(e -> {
-            primaryStage.setIconified(true);
-        });
-
-        loginTopPanel = new HBox();
-        loginTopPanel.getStyleClass().add("loginTopPanel");
-        loginTopPanel.setAlignment(Pos.CENTER_RIGHT);
-        loginTopPanel.setPadding(new Insets(0,0,0,0));
-        loginTopPanel.getChildren().addAll(loginLbl, loginMinimizeBtn, loginCloseBtn);
-
-        loginBtn = new Button("Login");
-        loginBtn.getStyleClass().add("loginBtn");
-        loginBtn.setOnAction(e -> {
-            if(connectToDB() == true){
-                if(validLogin(usernameLoginField.getText(), passwordLoginField.getText()) == true){
-                    superUser = usernameLoginField.getText();
-
-                    Scene mainScene = new Scene(rootPane, width, height);
-                    primaryStage.setScene(mainScene);
-                    primaryStage.centerOnScreen();
-
-                }else {
-                    errorLbl.setText("Incorrect username or password");
-                    errorLbl.setVisible(true);
-                    passwordLoginField.clear();
-                }
-            }else{
-                errorLbl.setText("Could Not Connect To Database");
-                errorLbl.setVisible(true);
-            }
-        });
-
-        signupBtn = new Button("Sign Up");
-        signupBtn.getStyleClass().add("signupBtn");
-        signupBtn.setOnAction(e -> {
-            usernameLoginField.setText(null);
-            passwordLoginField.setText(null);
-            Scene signUpScene = new Scene(signUpPane, 300, 250);
-            primaryStage.setScene(signUpScene);
-        });
-
-        loginBtnBox = new HBox();
-        loginBtnBox.getChildren().addAll(loginBtn, signupBtn, errorLbl);
+        xmlParser.generateUserInfo();
+        superUser = xmlParser.getSuperUser();
 
 
-        loginBox = new VBox();
-        loginBox.getChildren().addAll(usernameLoginField, passwordLoginField, loginBtnBox);
-
-        loginPane = new BorderPane();
-        loginPane.getStylesheets().add(Main.class.getResource("css/styleDark.css").toExternalForm());
-        loginPane.getStyleClass().add("loginPane");
-        loginPane.setTop(loginTopPanel);
-        loginPane.setCenter(loginBox);
-
-//-----------------------------------------------------------------------------------------------------> Login Pane End
-
-//-------------------------------------------------------------------------------------------------> Sign Up Pane Start
-
-        signUpCloseBtn = new Button();
-        signUpCloseBtn.getStyleClass().add("loginSystemBtn");
-        signUpCloseBtn.setOnAction(e -> {
-            systemClose();
-        });
-
-        signUpMinimizeBtn = new Button();
-        signUpMinimizeBtn.getStyleClass().add("loginSystemBtn");
-        signUpMinimizeBtn.setOnAction(e -> {
-            primaryStage.setIconified(true);
-        });
-
-        signUpTopPanel = new HBox();
-        signUpTopPanel.getStyleClass().add("loginTopPanel");
-        signUpTopPanel.setAlignment(Pos.CENTER_RIGHT);
-        signUpTopPanel.setPadding(new Insets(0, 0, 0, 0));
-        signUpTopPanel.getChildren().addAll(signUpMinimizeBtn, signUpCloseBtn);
-
-        usernameField = new TextField();
-        usernameField.getStyleClass().add("textField");
-        usernameField.setPromptText("Username");
-
-        passwordField = new PasswordField();
-        passwordField.getStyleClass().add("textField");
-        passwordField.setPromptText("Password");
-
-        repeatPasswordField = new PasswordField();
-        repeatPasswordField.getStyleClass().add("textField");
-        repeatPasswordField.setPromptText("Repeat Password");
-
-        emailField = new TextField();
-        emailField.getStyleClass().add("textField");
-        emailField.setPromptText("Email");
-
-        ageField = new TextField();
-        ageField.getStyleClass().add("textField");
-        ageField.setPromptText("Age (Optional)");
-
-        schoolField = new TextField();
-        schoolField.getStyleClass().add("textField");
-        schoolField.setPromptText("School (Optional)");
-
-        cityField = new TextField();
-        cityField.getStyleClass().add("textField");
-        cityField.setPromptText("City (Optional)");
-
-        countryField = new TextField();
-        countryField.getStyleClass().add("textField");
-        countryField.setPromptText("Country (Optional)");
-
-        finalSignUpBtn = new Button("Sign Up");
-        finalSignUpBtn.getStyleClass().add("loginBtn");
-        finalSignUpBtn.setOnAction(e -> {
-            if(connectToDB() == true){
-                if(validSignUp(usernameField.getText(), passwordField.getText(), repeatPasswordField.getText(),
-                        emailField.getText(), ageField.getText(), schoolField.getText()) == null){
-                    try{
-                        PreparedStatement psSignUp = null;
-                        ResultSet rsSignUp = null;
-                        psSignUp = dbCon.prepareStatement("INSERT INTO userInfo VALUES(" + "\'"
-                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
-                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
-                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
-                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
-
-                        System.out.println("INSERT INTO userInfo VALUES(" + "\'"
-                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
-                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
-                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
-                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
-
-                        psSignUp.executeUpdate();
-                    }catch (Exception signupErr){
-                        System.out.println("<----- Sign Up Error Start ----->");
-                        signupErr.printStackTrace();
-                        System.out.println("<----- Sign Up Error End ----->");
-                    }
-                }
-            }else {
-                errorLbl.setText("Could Not Connect To Database");
-            }
-        });
-
-        signUpBtnBox = new HBox();
-        signUpBtnBox.getChildren().addAll(finalSignUpBtn, errorLbl);
-
-        signUpBox = new VBox();
-        signUpBox.setPadding(new Insets(0, 0, 0, 0));
-        signUpBox.getChildren().addAll(usernameField, passwordField, repeatPasswordField, emailField, ageField,
-                schoolField, cityField, countryField,signUpBtnBox);
-
-        signUpPane = new BorderPane();
-        signUpPane.getStylesheets().add(Main.class.getResource("css/styleDark.css").toExternalForm());
-        signUpPane.getStyleClass().add("loginPane");
-        signUpPane.setTop(signUpTopPanel);
-        signUpPane.setCenter(signUpBox);
-
-//---------------------------------------------------------------------------------------------------> Sign Up Pane End
 
 //----------------------------------------------------------------------------------------------------> Top Panel Start
 
@@ -437,15 +281,15 @@ public class Main extends Application {
 
 //------------------------------------------------------------------------------------------------------> Top Panel End
 
-//---------------------------------------------------------------------------------------------------> Left Panel Start
+//----------------------------------------------------------------------------------------------> Navigation Panel Start
 
         Line initDivider = new Line();
         initDivider.setStartX(0.0f);
         initDivider.setEndX(205.0f);
         initDivider.setStroke(Color.GRAY);
 
-        dashboardToolTip = new Tooltip();
-        dashboardToolTip.setText("Dashboard");
+        // <----- Dashboard ----->
+        dashboardToolTip = new Tooltip("Dashboard");
 
         dashboardBtn = new Button("");
         dashboardBtn.getStyleClass().add("dashboardBtn");
@@ -455,21 +299,19 @@ public class Main extends Application {
             rootPane.setCenter(dashBoardBase);
         });
 
-        profileToolTip = new Tooltip();
-        profileToolTip.setText("Profile");
+        // <----- Profile ----->
+        profileToolTip = new Tooltip("Profile");
 
         profileBtn = new Button();
         profileBtn.getStyleClass().add("profileBtn");
         profileBtn.setTooltip(profileToolTip);
         profileBtn.setOnAction(e -> {
             resetBtns();
-            //profileContentRs = aleDB.getUserInfo(superUser);
-            //setProfileInfo();
             rootPane.setCenter(profilePanel);
         });
 
-        courseToolTip = new Tooltip();
-        courseToolTip.setText("Courses");
+        // <----- Courses ----->
+        courseToolTip = new Tooltip("Courses");
 
         coursesBtn = new Button("");
         coursesBtn.getStyleClass().add("coursesBtn");
@@ -477,7 +319,7 @@ public class Main extends Application {
         coursesBtn.setOnAction(e -> {
             resetBtns();
             rootPane.setCenter(coursesPanel);
-            miscContainer.getChildren().addAll(watchVidBtn);
+            //miscContainer.getChildren().addAll(watchVidBtn);
             coursesPanel.setContent(coursesGridPanel);
         });
 
@@ -486,8 +328,8 @@ public class Main extends Application {
         mainDivider.setEndX(205.0f);
         mainDivider.setStroke(Color.GRAY);
 
-        simsToolTip = new Tooltip();
-        simsToolTip.setText("Simulations");
+        // <----- Simulations ----->
+        simsToolTip = new Tooltip("Simulations");
 
         simsBtn = new Button();
         simsBtn.getStyleClass().add("simsBtn");
@@ -498,8 +340,8 @@ public class Main extends Application {
             simsPanel.setContent(simsGridPanel);
         });
 
-        textEditorToolTip = new Tooltip();
-        textEditorToolTip.setText("Text Editor");
+        // <----- Text Editor ----->
+        textEditorToolTip = new Tooltip("Text Editor");
 
         textEditorBtn = new Button();
         textEditorBtn.getStyleClass().add("textEditorBtn");
@@ -515,8 +357,8 @@ public class Main extends Application {
         toolsDivider.setEndX(205.0f);
         toolsDivider.setStroke(Color.GRAY);
 
-        wolframToolTip = new Tooltip();
-        wolframToolTip.setText("Wolfram Alpha");
+        // <----- Wolfram Alpha ----->
+        wolframToolTip = new Tooltip("Wolfram Alpha");
 
         wolframBtn = new Button();
         wolframBtn.getStyleClass().add("wolframBtn");
@@ -526,8 +368,9 @@ public class Main extends Application {
             rootPane.setCenter(wolframPanel);
         });
 
+
+        // <----- Wikipedia ----->
         wikipediaToolTip = new Tooltip();
-        wikipediaToolTip.setText("Wikipedia");
 
         wikipediaBtn = new Button();
         wikipediaBtn.getStyleClass().add("wikipediaBtn");
@@ -537,11 +380,13 @@ public class Main extends Application {
             rootPane.setCenter(wikipediaPanel);
         });
 
+
         Line sitesDivider = new Line();
         sitesDivider.setStartX(0.0f);
         sitesDivider.setEndX(205.0f);
         sitesDivider.setStroke(Color.GRAY);
 
+        // <----- Settings ----->
         settingsToolTip = new Tooltip("Settings");
 
         settingsBtn = new Button();
@@ -566,7 +411,7 @@ public class Main extends Application {
         topPanel.setPadding(new Insets(0,0,0,0));
         topPanel.getChildren().addAll(miscContainer, minimizeBtn, closeBtn);
 
-//-----------------------------------------------------------------------------------------------------> Left Panel End
+//------------------------------------------------------------------------------------------------> Navigation Panel End
 
 //-----------------------------------------------------------------------------------------------> Dashboard Pane Start
 
@@ -671,17 +516,47 @@ public class Main extends Application {
         profilePictureBtn = new Button();
         profilePictureBtn.getStyleClass().addAll("profilePictureBtn");
 
+        String profileUserName = xmlParser.getSuperUser();
+
+        String profileEmail = xmlParser.getEmail();
+        String profileAge = xmlParser.getAge();
+        String profileSchool = xmlParser.getSchool();
+        String profileCountry = "";
+        String profileCity = "";
+
+        userNameLbl = new Label(profileUserName);
+        userNameLbl.getStyleClass().add("profileLbl");
+        userNameLbl.setAlignment(Pos.CENTER);
+
+        emailLbl = new Label(profileEmail);
+        emailLbl.getStyleClass().add("profileLbl");
+
+        ageLbl = new Label(profileAge);
+        ageLbl.getStyleClass().add("profileLbl");
+
+        schoolLbl = new Label(profileSchool);
+        schoolLbl.getStyleClass().add("profileLbl");
+
         profileGridPanel = new GridPane();
         profileGridPanel.getStyleClass().add("gridPane");
         profileGridPanel.setVgap(5);
         profileGridPanel.setHgap(5);
-        profileGridPanel.setGridLinesVisible(true);
+        profileGridPanel.setGridLinesVisible(false);
         profileGridPanel.setPrefWidth(width - 208);
         profileGridPanel.setPrefHeight(860);
         profileGridPanel.setAlignment(Pos.TOP_CENTER);
 
         profileGridPanel.setRowIndex(profilePictureBtn, 0);
         profileGridPanel.setColumnIndex(profilePictureBtn, 0);
+        profileGridPanel.setRowIndex(userNameLbl, 1);
+        profileGridPanel.setColumnIndex(userNameLbl, 0);
+        profileGridPanel.setRowIndex(emailLbl, 2);
+        profileGridPanel.setColumnIndex(emailLbl, 0);
+        profileGridPanel.setRowIndex(ageLbl, 3);
+        profileGridPanel.setColumnIndex(ageLbl, 0);
+        profileGridPanel.setRowIndex(schoolLbl, 4);
+        profileGridPanel.setColumnIndex(schoolLbl, 0);
+        profileGridPanel.getChildren().addAll(profilePictureBtn, userNameLbl, emailLbl, ageLbl, schoolLbl);
 
         profilePanel = new ScrollPane();
         profilePanel.getStyleClass().add("scrollPane");
@@ -727,7 +602,7 @@ public class Main extends Application {
         bioBtn = new Button();
         bioBtn.getStyleClass().add("bioBtn");
         bioBtn.setOnAction(e -> {
-            displayCourse("biology");
+            rootPane.setCenter(biologyCourse.biologyPane());
         });
 
         // Course Web View
@@ -736,8 +611,10 @@ public class Main extends Application {
             courseWebEngine = courseView.getEngine();
             courseView.setPrefHeight(860);
             courseView.setPrefWidth(width - 208);
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception excep){
+            System.out.println("<----- Exception in Course Web ----->");
+            excep.printStackTrace();
+            System.out.println("<---------->\n");
         }
 
         coursesGridPanel = new GridPane();
@@ -772,6 +649,16 @@ public class Main extends Application {
         browser.setPrefHeight(860);
         browser.setPrefWidth(width - 208);
 
+        /*
+        File phetImageFile = new File("img/styleDark/poweredByPHET.png");
+        String phetImageURL = phetImageFile.toURI().toURL().toString();
+        Image phetImage = new Image(phetImageURL, false);
+        */
+
+        final ImageView phetImageView = new ImageView();
+        final Image phetImage = new Image(Main.class.getResourceAsStream("img/styleDark/poweredByPHET.png"));
+        phetImageView.setImage(phetImage);
+
         Label motionLbl = new Label("Motion");
         motionLbl.getStyleClass().add("lbl");
 
@@ -786,6 +673,14 @@ public class Main extends Application {
         balancingActBtn.getStyleClass().add("balancingActBtn");
         balancingActBtn.setOnAction(e -> {
             webEngine.load("https://phet.colorado.edu/sims/html/balancing-act/latest/balancing-act_en.html");
+            simsPanel.setContent(browser);
+        });
+
+        energySkateParkBtn = new Button();
+        energySkateParkBtn.getStyleClass().add("energySkateParkBtn");
+        energySkateParkBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/energy-skate-park-basics/latest/" +
+                    "energy-skate-park-basics_en.html");
             simsPanel.setContent(browser);
         });
 
@@ -812,6 +707,42 @@ public class Main extends Application {
             simsPanel.setContent(browser);
         });
 
+        Label soundAndWavesLbl = new Label("Sound and Waves");
+        soundAndWavesLbl.getStyleClass().add("lbl");
+
+        wavesOnAStringBtn = new Button();
+        wavesOnAStringBtn.getStyleClass().add("wavesOnAStringBtn");
+        wavesOnAStringBtn.setOnAction(e -> {
+            webEngine.load("https://phet.colorado.edu/sims/html/wave-on-a-string/latest/wave-on-a-string_en.html");
+            simsPanel.setContent(browser);
+        });
+
+        /*
+        motionSimsFlowPane = new FlowPane();
+        motionSimsFlowPane.getStyleClass().add("flowPane");
+        motionSimsFlowPane.setVgap(5);
+        motionSimsFlowPane.setHgap(5);
+        motionSimsFlowPane.setAlignment(Pos.TOP_LEFT);
+        motionSimsFlowPane.getChildren().addAll(forcesAndMotionBtn, balancingActBtn, energySkateParkBtn,
+                buildAnAtomBtn, colorVisionBtn, wavesOnAStringBtn);
+
+
+        soundAndWavesFlowPane = new FlowPane();
+        soundAndWavesFlowPane.getStyleClass().add("flowPane");
+        soundAndWavesFlowPane.setVgap(5);
+        soundAndWavesFlowPane.setHgap(5);
+        soundAndWavesFlowPane.setAlignment(Pos.TOP_LEFT);
+        soundAndWavesFlowPane.getChildren().addAll(wavesOnAStringBtn);
+
+
+        simsBox = new VBox();
+        simsBox.getStyleClass().add("vbox");
+        simsBox.setPrefHeight(height);
+        simsBox.setPrefWidth(width);
+        simsBox.getChildren().addAll(motionLbl, motionSimsFlowPane, soundAndWavesLbl, soundAndWavesFlowPane);
+        */
+
+
         simsGridPanel = new GridPane();
         simsGridPanel.getStyleClass().add("gridPane");
         simsGridPanel.setVgap(5);
@@ -820,18 +751,31 @@ public class Main extends Application {
         simsGridPanel.setPrefWidth(width - 208);
         simsGridPanel.setPrefHeight(860);
 
+        simsGridPanel.setRowIndex(phetImageView, 0);
+        simsGridPanel.setColumnIndex(phetImageView, 4);
+
         simsGridPanel.setRowIndex(motionLbl, 0);
         simsGridPanel.setColumnIndex(motionLbl, 0);
         simsGridPanel.setRowIndex(forcesAndMotionBtn, 1);
         simsGridPanel.setColumnIndex(forcesAndMotionBtn, 0);
         simsGridPanel.setRowIndex(balancingActBtn, 1);
         simsGridPanel.setColumnIndex(balancingActBtn, 1);
+        simsGridPanel.setRowIndex(energySkateParkBtn, 1);
+        simsGridPanel.setColumnIndex(energySkateParkBtn, 2);
         simsGridPanel.setRowIndex(buildAnAtomBtn, 1);
-        simsGridPanel.setColumnIndex(buildAnAtomBtn, 2);
+        simsGridPanel.setColumnIndex(buildAnAtomBtn, 3);
         simsGridPanel.setRowIndex(colorVisionBtn, 1);
-        simsGridPanel.setColumnIndex(colorVisionBtn, 3);
-        simsGridPanel.getChildren().addAll(motionLbl, forcesAndMotionBtn, balancingActBtn, buildAnAtomBtn,
-                colorVisionBtn);
+        simsGridPanel.setColumnIndex(colorVisionBtn, 4);
+
+        simsGridPanel.setRowIndex(soundAndWavesLbl, 2);
+        simsGridPanel.setColumnIndex(soundAndWavesLbl, 0);
+        simsGridPanel.setColumnSpan(soundAndWavesLbl, 4);
+        simsGridPanel.setRowIndex(wavesOnAStringBtn, 3);
+        simsGridPanel.setColumnIndex(wavesOnAStringBtn, 0);
+
+        simsGridPanel.getChildren().addAll(phetImageView, motionLbl, forcesAndMotionBtn, balancingActBtn, energySkateParkBtn,
+                buildAnAtomBtn, colorVisionBtn, soundAndWavesLbl, wavesOnAStringBtn);
+
 
         simsPanel = new ScrollPane();
         simsPanel.getStyleClass().add("scrollPane");
@@ -865,12 +809,9 @@ public class Main extends Application {
         saveDocBtn.getStyleClass().add("btn");
         saveDocBtn.setText("Save");
         saveDocBtn.setOnAction(e -> {
-            String saveName = JOptionPane.showInputDialog("Enter File Name");
             tmpRun.setText(tools.stripHTMLTags(htmlEditor.getHtmlText()));
             tmpRun.setFontSize(12);
-            try {
-                document.write(new FileOutputStream(new File("C:\\Users\\Josh\\Documents\\" + saveName + ".docx")));
-            }catch(Exception q){ q.printStackTrace();}
+            saveDocument(document, primaryStage);
 
         });
 
@@ -895,13 +836,15 @@ public class Main extends Application {
             }
             wolframPanel = new ScrollPane();
             wolframPanel.setContent(wolframWeb);
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(Exception excep){
+            System.out.println("<----- Exception in Wolfram Alpha Web ----->");
+            excep.printStackTrace();
+            System.out.println("<---------->\n");
         }
 
 //---------------------------------------------------------------------------------------------------> Wolfram Pane End
 
-//-------------------------------------------------------------------------------------------------> Wikipedia Pane Start
+//------------------------------------------------------------------------------------------------> Wikipedia Pane Start
 
         Boolean wikipediaActive = false;
         try {
@@ -925,10 +868,15 @@ public class Main extends Application {
 //-------------------------------------------------------------------------------------------------> Settings Pane Start
 
         settingsGridPanel = new GridPane();
-        settingsGridPanel.getStyleClass().add("gridPanel");
+        settingsGridPanel.getStyleClass().add("gridPane");
+        settingsGridPanel.setPrefWidth(width - 208);
+        settingsGridPanel.setPrefHeight(height);
+        settingsGridPanel.setVgap(5);
+        settingsGridPanel.setHgap(5);
 
         settingsPanel = new ScrollPane();
         settingsPanel.getStyleClass().add("scrollPane");
+        settingsPanel.setContent(settingsGridPanel);
 
 //---------------------------------------------------------------------------------------------------> Settings Pane End
         rootPane = new BorderPane();
@@ -938,12 +886,14 @@ public class Main extends Application {
         rootPane.getStyleClass().add("rootPane");
         rootPane.getStylesheets().add(Main.class.getResource("css/styleDark.css").toExternalForm());
 
+        programWidth = primaryStage.getWidth();
+        programHeight = primaryStage.getHeight();
 
         primaryStage.setTitle("ALE");
         primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.getIcons().add(new javafx.scene.image.Image(Main.class
                 .getResourceAsStream("img/aleIcon.png")));
-        primaryStage.setScene(new Scene(loginPane, 300, 123));
+        primaryStage.setScene(new Scene(rootPane, width, height));
         primaryStage.show();
     }
 
@@ -1014,7 +964,6 @@ public class Main extends Application {
             e.printStackTrace();
         }
 
-
         return validUser;
     }
 
@@ -1051,55 +1000,25 @@ public class Main extends Application {
 
     }
 
-    public void setProfileInfo(){
-        String profileUserName = "";
-        String profileEmail = "";
-        String profileAge = "";
-        String profileSchool = "";
-        String profileCountry = "";
-        String profileCity = "";
-
+    public void saveDocument(XWPFDocument document, Stage stage){
         try {
-            while (profileContentRs.next()){
+            FileChooser saveDocument = new FileChooser();
+            saveDocument.setTitle("Save Document");
+            saveDocument.getExtensionFilters().add(new FileChooser.ExtensionFilter("Word Document(*.docx)", "*.docx"));
+            File file = saveDocument.showSaveDialog(stage);
+            document.write(new FileOutputStream(file));
 
-                profileUserName = profileContentRs.getString("username");
-                System.out.println(profileUserName);
-
-                profileEmail = profileContentRs.getString("email");
-                System.out.println(profileEmail);
-
-                profileAge = profileContentRs.getString("age");
-                System.out.println(profileAge);
-
-                profileSchool = profileContentRs.getString("school");
-                System.out.println(profileSchool);
-
-                profileCountry = profileContentRs.getString("country");
-                System.out.println(profileCountry);
-
-                profileCity = profileContentRs.getString("city");
-                System.out.println(profileCity);
-
-            }
-        }catch (Exception profileSetContentException){
-            System.out.println("profileSetContentException: ");
-            profileSetContentException.printStackTrace();
+        }catch(IOException ioExcep){
+            System.out.println("<----- IO Exception in Save Document ----->");
+            ioExcep.printStackTrace();
+            System.out.println("<---------->\n");
         }
-
-        userNameLbl.setText(profileUserName);
-        emailLbl.setText(profileEmail);
-        ageLbl.setText(profileAge);
-        schoolLbl.setText(profileSchool);
-
-        profileGridPanel.setRowIndex(userNameLbl, 1);
-        profileGridPanel.setColumnIndex(userNameLbl, 0);
-        profileGridPanel.setRowIndex(emailLbl, 2);
-        profileGridPanel.setColumnIndex(emailLbl, 0);
-        profileGridPanel.setRowIndex(ageLbl, 3);
-        profileGridPanel.setColumnIndex(ageLbl, 0);
-        profileGridPanel.setRowIndex(schoolLbl, 4);
-        profileGridPanel.setColumnIndex(schoolLbl, 0);
-        profileGridPanel.getChildren().addAll(profilePictureBtn, userNameLbl, emailLbl, ageLbl, schoolLbl);
     }
 
+    public Main() {
+    }
+
+    public double getWidth() {
+        return width;
+    }
 }

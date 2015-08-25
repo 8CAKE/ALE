@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class aleDB {
-    Main main = new Main();
+//    Main main = new Main();
 
     Connection dbCon = null;
 
@@ -25,6 +25,12 @@ public class aleDB {
         return estCon;
     }
 
+    public Connection getDbCon() {
+        return dbCon;
+    }
+
+    public aleDB() {
+    }
     /*
     public ResultSet getUserInfo(String username){
 

@@ -4,6 +4,7 @@ package com.silverfox.ale;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,16 +17,14 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.IOException;
+import java.sql.*;
 
 public class login extends Application {
 
-    Main aleMain = new Main();
     aleDB aleDB = new aleDB();
 
-    Connection dbCon = aleDB.dbCon;
+    Connection dbCon;
     PreparedStatement dbStm;
     ResultSet dbRs;
 
@@ -61,6 +60,7 @@ public class login extends Application {
     TextField cityField;
     TextField countryField;
     Button finalSignUpBtn;
+    Label signUpErrorLbl;
 
     public static void main(String[] args) {
         launch(args);
@@ -82,20 +82,18 @@ public class login extends Application {
         usernameLoginField.getStyleClass().add("textField");
         usernameLoginField.setPromptText("Username");
 
-        //For quick access
-        usernameLoginField.setText("sample");
-
         passwordLoginField = new PasswordField();
         passwordLoginField.getStyleClass().add("textField");
         passwordLoginField.setPromptText("Password");
 
-        //For quick access during development
+        //Uncomment for debugging
+        usernameLoginField.setText("sample");
         passwordLoginField.setText("1234");
 
         loginCloseBtn = new Button("");
         loginCloseBtn.getStyleClass().add("loginSystemBtn");
         loginCloseBtn.setOnAction(e -> {
-            aleMain.systemClose();
+            System.exit(0);
         });
 
         loginMinimizeBtn = new Button("");
@@ -113,13 +111,25 @@ public class login extends Application {
         loginBtn = new Button("Login");
         loginBtn.getStyleClass().add("loginBtn");
         loginBtn.setOnAction(e -> {
-            if(aleDB.connectToDB() == true){
+            if(connectToDB() == true){
                 if(validLogin(usernameLoginField.getText(), passwordLoginField.getText()) == true){
                     superUser = usernameLoginField.getText();
+                    try{
 
-                    Scene mainScene = new Scene(rootPane, width, height);
-                    primaryStage.setScene(mainScene);
-                    primaryStage.centerOnScreen();
+                        Main main = new Main();
+                        Stage mainStage = new Stage();
+                        main.start(mainStage);
+                        ((Node)(e.getSource())).getScene().getWindow().hide();
+                    }catch (IOException ioExcep){
+                        //<----- IO Exception in Valid Login ----->
+                        ioExcep.printStackTrace();
+                        //<---------->
+                    }catch (Exception excep){
+                        //<----- Exception in Valid Login ----->
+                        excep.printStackTrace();
+                        //<---------->
+                    }
+
 
                 }else {
                     errorLbl.setText("Incorrect username or password");
@@ -161,7 +171,7 @@ public class login extends Application {
         signUpCloseBtn = new Button();
         signUpCloseBtn.getStyleClass().add("loginSystemBtn");
         signUpCloseBtn.setOnAction(e -> {
-            aleMain.systemClose();
+            System.exit(0);
         });
 
         signUpMinimizeBtn = new Button();
@@ -208,46 +218,61 @@ public class login extends Application {
         countryField.getStyleClass().add("textField");
         countryField.setPromptText("Country (Optional)");
 
+        signUpErrorLbl = new Label();
+        signUpErrorLbl.getStyleClass().add("errorLbl");
+
         finalSignUpBtn = new Button("Sign Up");
         finalSignUpBtn.getStyleClass().add("loginBtn");
         finalSignUpBtn.setOnAction(e -> {
-            if(aleDB.connectToDB() == true){
+            if(connectToDB() == true){
                 if(validSignUp(usernameField.getText(), passwordField.getText(), repeatPasswordField.getText(),
                         emailField.getText(), ageField.getText(), schoolField.getText()) == null){
+
+                    String username = usernameField.getText();
+                    String email = emailField.getText();
+                    String password = passwordField.getText();
+                    String age = ageField.getText();
+
+                    if(age.equals("")){
+                        age = "null";
+                    }
+
+                    String school = schoolField.getText();
+                    String city = cityField.getText();
+                    String country = countryField.getText();
+
                     try{
                         PreparedStatement psSignUp = null;
                         ResultSet rsSignUp = null;
                         psSignUp = dbCon.prepareStatement("INSERT INTO userInfo VALUES(" + "\'"
-                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
-                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
-                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
-                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
+                                + username + "\'" + "," + "\'" + email + "\'" + "," + "\'" + password
+                                + "\'" + "," + age + "," + null + "," + "\'" + school + "\'" + "," + "\'" + city
+                                + "\'" + "," + "\'" + country + "\'" + "," +"\'" +  "\'" + ")" + ";");
 
                         System.out.println("INSERT INTO userInfo VALUES(" + "\'"
-                                + usernameField.getText() + "\'" + "," + "\'" + emailField.getText()
-                                + "\'" + "," + "\'" + passwordField.getText() + "\'" + "," + ageField.getText() + ","
-                                + null + "," + "\'" +schoolField.getText() + "\'" + "," + "\'" + cityField.getText()
-                                + "\'" + "," + "\'" + countryField.getText() + "\'" + ")" + ";");
+                                + username + "\'" + "," + "\'" + email + "\'" + "," + "\'" + password
+                                + "\'" + "," + age + "," + null + "," + "\'" + school + "\'" + "," + "\'" + city
+                                + "\'" + "," + "\'" + country + "\'" + "," +"\'" +  "\'" + ")" + ";");
 
                         psSignUp.executeUpdate();
-                    }catch (Exception signupErr){
+                    }catch (SQLException sqlExcep){
                         JOptionPane.showMessageDialog(null, "Internal Sign Up Error");
-                        System.out.println("<----- Sign Up Error Start ----->");
-                        signupErr.printStackTrace();
-                        System.out.println("<----- Sign Up Error End ----->");
+                        System.out.println("<----- SQL Exception in Sign Up ----->");
+                        sqlExcep.printStackTrace();
+                        System.out.println("<---------->\n");
                     }
                 }else {
-                    errorLbl.setText(validSignUp(usernameField.getText(), passwordField.getText(),
+                    signUpErrorLbl.setText(validSignUp(usernameField.getText(), passwordField.getText(),
                             repeatPasswordField.getText(), emailField.getText(), ageField.getText(),
                             schoolField.getText()));
                 }
             }else {
-                errorLbl.setText("Could Not Connect To Database");
+                signUpErrorLbl.setText("Could Not Connect To Database");
             }
         });
 
         signUpBtnBox = new HBox();
-        signUpBtnBox.getChildren().addAll(finalSignUpBtn, errorLbl);
+        signUpBtnBox.getChildren().addAll(finalSignUpBtn, signUpErrorLbl);
 
         signUpBox = new VBox();
         signUpBox.setPadding(new Insets(0, 0, 0, 0));
@@ -319,6 +344,40 @@ public class login extends Application {
             error = "Passwords do not match";
         }
 
+        if(username.equals("")){
+            error = "Enter username";
+        }
+
+        if(password.equals("")){
+            error = "Enter password";
+        }
+
+        if(email.equals("")){
+            error = "Enter email";
+        }
+
+        if(!age.equals("")){
+            if(Integer.parseInt(age) > 0 || Integer.parseInt(age) < 100){
+            }else{
+                error = "Enter valid age";
+            }
+        }
+
         return error;
+    }
+
+    public boolean connectToDB(){
+        boolean estCon = false;
+        try{
+            dbCon = DriverManager.getConnection("jdbc:mysql://192.168.1.6:3306/ale", "Root", "oqu#$XQgHFzDj@1MGg1G8");
+            estCon = true;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return estCon;
+    }
+
+    public login() {
     }
 }

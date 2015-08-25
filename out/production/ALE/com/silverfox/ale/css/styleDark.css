@@ -264,15 +264,37 @@
 }
 
 .bioBtn{
-    -fx-graphic: url("../img/btn/Courses/BioCourseButton.png");
+    -fx-graphic: url("../img/styleDark/Courses/bioCourseBtn.png");
     -fx-background-color: transparent;
 }
+
+.anatomyBtn{
+    -fx-graphic: url("../img/styleDark/Courses/Biology/anatomyAndPhysiologyBtn.png");
+    -fx-background-color: transparent;
+}
+
+.skeletalSystemBtn{
+    -fx-graphic: url("../img/styleDark/Courses/Biology/theSkeletalSystemBtn.png");
+    -fx-background-color: transparent;
+}
+
+.digestiveSystemBtn{
+    -fx-graphic: url("../img/styleDark/Courses/Biology/theDigestiveSystem.png");
+    -fx-background-color: transparent;
+}
+
+.reproductiveSystemBtn{
+    -fx-graphic: url("../img/styleDark/Courses/Biology/theReproductiveSystemBtn.png");
+    -fx-background-color: transparent;
+}
+
 
 
 /* Scroll Pane Start */
 
 .scrollPane{
     -fx-background-color: #2a2a2a;
+    -fx-background-insets: 0,0,0;
 }
 
 .scrollPane .scroll-bar:vertical ,
@@ -305,6 +327,14 @@
 }
 
 /* Scroll Pane End */
+
+.flowPane{
+    -fx-background-color: #2a2a2a;
+}
+
+.vbox{
+    -fx-background-color: #2a2a2a;
+}
 
 
 /* Web view Start */
@@ -370,6 +400,16 @@
 
 .balancingActBtn{
     -fx-graphic: url("../img/styleDark/Simulations/balancingActBtn.png");
+    -fx-background-color: transparent;
+}
+
+.energySkateParkBtn{
+    -fx-graphic: url("../img/styleDark/Simulations/energySkateParkBtn.png");
+    -fx-background-color: transparent;
+}
+
+.wavesOnAStringBtn{
+    -fx-graphic: url("../img/styleDark/Simulations/wavesOnAStringBtn.png");
     -fx-background-color: transparent;
 }
 
